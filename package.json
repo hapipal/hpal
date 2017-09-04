@@ -1,0 +1,30 @@
+{
+  "name": "paldo",
+  "version": "0.0.0",
+  "description": "hapi pal CLI",
+  "main": "lib/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "lab -a code -t 100",
+    "coveralls": "lab -r lcov | coveralls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devinivy/paldo.git"
+  },
+  "keywords": [],
+  "author": "Devin Ivy <devin@bigroomstudios.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/devinivy/paldo/issues"
+  },
+  "homepage": "https://github.com/devinivy/paldo#readme",
+  "dependencies": {
+    "bossy": "3.x.x"
+  },
+  "devDependencies": {
+    "lab": "14.x.x"
+  }
+}
