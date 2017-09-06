@@ -1,3 +1,7 @@
 #!/usr/bin/env node
 
-require('..').start({ args: process.argv });
+require('..').start({ args: process.argv }).catch((err) => {
+
+    console.error(err.message);
+    process.exit(1);
+});

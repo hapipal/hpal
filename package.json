@@ -22,7 +22,10 @@
   },
   "homepage": "https://github.com/devinivy/paldo#readme",
   "dependencies": {
-    "bossy": "3.x.x"
+    "bossy": "3.x.x",
+    "deglob": "2.x.x",
+    "pify": "3.x.x",
+    "pkg-dir": "2.x.x"
   },
   "devDependencies": {
     "lab": "14.x.x"
