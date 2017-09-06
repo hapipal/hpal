@@ -25,7 +25,8 @@
     "bossy": "3.x.x",
     "deglob": "2.x.x",
     "pify": "3.x.x",
-    "pkg-dir": "2.x.x"
+    "pkg-dir": "2.x.x",
+    "pluralize": "7.x.x"
   },
   "devDependencies": {
     "lab": "14.x.x"
