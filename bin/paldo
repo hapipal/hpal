@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
-require('..').start({ args: process.argv }).catch((err) => {
+require('..')
+    .start({ args: process.argv })
+    .then(() => process.exit(0))
+    .catch((err) => {
 
-    console.error(err.message);
-    process.exit(1);
-});
+        console.error(err.message);
+        process.exit(1);
+    });
