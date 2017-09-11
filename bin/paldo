@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
-require('..')
-    .start({ args: process.argv })
+const Paldo = require('..');
+
+Promise.resolve()
+    .then(() => Paldo.start({ args: process.argv }))
     .then(() => process.exit(0))
     .catch((err) => {
 
-        console.error(err.message);
+        console.error(err.stack);
         process.exit(1);
     });
