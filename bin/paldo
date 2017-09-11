@@ -1,12 +1,19 @@
 #!/usr/bin/env node
 
 const Paldo = require('..');
+const DisplayError = require('../lib/display-error');
 
 Promise.resolve()
     .then(() => Paldo.start({ args: process.argv }))
     .then(() => process.exit(0))
     .catch((err) => {
 
-        console.error(err.stack);
+        if (err instanceof DisplayError) {
+            console.error(err.message);
+        }
+        else {
+            console.error(err.stack);
+        }
+
         process.exit(1);
     });
