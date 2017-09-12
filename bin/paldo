@@ -4,7 +4,7 @@ const Paldo = require('..');
 const DisplayError = require('../lib/display-error');
 
 Promise.resolve()
-    .then(() => Paldo.start({ args: process.argv }))
+    .then(() => Paldo.start({ argv: process.argv, out: process.stdout, cwd: process.cwd }))
     .then(() => process.exit(0))
     .catch((err) => {
 
