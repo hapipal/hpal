@@ -4,6 +4,7 @@ const ChildProcess = require('child_process');
 const Path = require('path');
 const Stream = require('stream');
 const Paldo = require('..');
+const DisplayError = require('../lib/display-error');
 
 exports.bin = (argv, cwd) => {
 
@@ -52,5 +53,14 @@ exports.cli = (argv, cwd) => {
 
     return Promise.resolve()
         .then(() => Paldo.start({ argv, out, cwd: cwd || __dirname }))
-        .then(() => output);
+        .then(() => ({ err: null, output, errorOutput: '' }))
+        .catch((err) => {
+
+            if (!(err instanceof DisplayError)) {
+                err.output = output;
+                throw err;
+            }
+
+            return { err, output, errorOutput: err.message };
+        });
 };

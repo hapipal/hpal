@@ -16,7 +16,7 @@ const expect = Lab.expect;
 
 const internals = {};
 
-describe.only('Print.example()', () => {
+describe('Print.example()', () => {
 
     const p = Print.example;
 

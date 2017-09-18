@@ -4,6 +4,7 @@
 
 const Lab = require('lab');
 const RunUtil = require('./run-util');
+const Package = require('../package.json');
 
 // Test shortcuts
 
@@ -22,15 +23,38 @@ describe('paldo', () => {
         it('outputs help [-h, --help]', () => {
 
             return RunUtil.cli(['-h'])
-                .then((output) => {
+                .then((result) => {
 
-                    expect(output).to.contain('Usage: paldo ???');
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Usage: paldo ???');
+                    expect(result.errorOutput).to.equal('');
 
                     return RunUtil.cli(['--help']);
                 })
-                .then((output) => {
+                .then((result) => {
 
-                    expect(output).to.contain('Usage: paldo ???');
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Usage: paldo ???');
+                    expect(result.errorOutput).to.equal('');
+                });
+        });
+
+        it('outputs version [-v, --version]', () => {
+
+            return RunUtil.cli(['-v'])
+                .then((result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain(Package.version);
+                    expect(result.errorOutput).to.equal('');
+
+                    return RunUtil.cli(['--version']);
+                })
+                .then((result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain(Package.version);
+                    expect(result.errorOutput).to.equal('');
                 });
         });
     });
@@ -43,8 +67,8 @@ describe('paldo', () => {
                 .then((result) => {
 
                     expect(result.code).to.equal(0);
-                    expect(result.errorOutput).to.equal('');
                     expect(result.output).to.contain('Usage: paldo ???');
+                    expect(result.errorOutput).to.equal('');
                 });
         });
     });
