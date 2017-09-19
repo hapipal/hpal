@@ -42,6 +42,8 @@ exports.bin = (argv, cwd) => {
 
 exports.cli = (argv, cwd) => {
 
+    argv = ['x', 'x'].concat(argv); // [node, script, ...args]
+
     const out = new Stream.PassThrough();
 
     let output = '';
@@ -52,7 +54,7 @@ exports.cli = (argv, cwd) => {
     });
 
     return Promise.resolve()
-        .then(() => Paldo.start({ argv, out, cwd: cwd || __dirname }))
+        .then(() => Paldo.start({ argv, out, cwd: cwd ? `${__dirname}/closet/${cwd}` : __dirname }))
         .then(() => ({ err: null, output, errorOutput: '' }))
         .catch((err) => {
 
