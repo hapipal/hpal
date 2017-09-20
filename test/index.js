@@ -2,7 +2,10 @@
 
 // Load modules
 
+const Fs = require('fs');
 const Lab = require('lab');
+const Pify = require('pify');
+const Rimraf = require('rimraf');
 const RunUtil = require('./run-util');
 const DisplayError = require('../lib/display-error');
 const Package = require('../package.json');
@@ -85,6 +88,9 @@ describe('paldo', () => {
 
         describe('make command', () => {
 
+            const rimraf = (file) => Pify(Rimraf)(`${__dirname}/closet/${file}`, { disableGlob: true });
+            const read = (file) => Pify(Fs.readFile)(`${__dirname}/closet/${file}`, 'utf8');
+
             it('errors when there\'s no .hc.js file found', () => {
 
                 return RunUtil.cli(['make', 'route'], 'no-hc-file')
@@ -119,6 +125,149 @@ describe('paldo', () => {
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('Couldn\'t find the haute-couture package in this project.  It may just need to be installed.');
                     });
+            });
+
+            it('errors when file to create already exists', () => {
+
+                return RunUtil.cli(['make', 'route', 'some-route'], 'file-already-exists')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('The file');
+                        expect(result.errorOutput).to.contain('file-already-exists/routes/some-route.js');
+                        expect(result.errorOutput).to.contain('already exists.');
+                    });
+            });
+
+            it('errors when trying to create a non-existent item', () => {
+
+                return RunUtil.cli(['make', 'nonsense'], 'item-doesnt-exist')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('We don\'t know anything about "nonsense".  Try one of: ');
+                        expect(result.errorOutput).to.contain('decorations, ');
+                    });
+            });
+
+            it('errors when trying to create a non-list item with a name', () => {
+
+                return RunUtil.cli(['make', 'view-manager', 'spunky'], 'cant-have-name')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('view-manager should be declared once and not in a list, so we can\'t use name "spunky".');
+                    });
+            });
+
+            it('errors when trying to make an item as both a file and a directory', () => {
+
+                return RunUtil.cli(['make', 'routes', '-f', '-d'], 'file-dir-conflict')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Options [-d, --asDir] and [-f, --asFile] conflict with each other.');
+                    });
+            });
+
+            it('creates a list item in a directory (default)', () => {
+
+                const check = (result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/routes/index.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    return read('list-as-dir/lib/routes/index.js')
+                        .then((contents) => {
+
+                            expect(contents).to.startWith(`'use strict';`);
+
+                            return rimraf('list-as-dir/lib/routes');
+                        });
+                };
+
+                return RunUtil.cli(['make', 'routes'], 'list-as-dir')
+                    .then(check)
+                    .then(() => RunUtil.cli(['make', 'routes', '-d'], 'list-as-dir'))
+                    .then(check)
+                    .then(() => RunUtil.cli(['make', 'routes', '--asDir'], 'list-as-dir'))
+                    .then(check);
+            });
+
+            it('creates a list item as a file', () => {
+
+                const check = (result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/routes.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    return read('list-as-file/lib/routes.js')
+                        .then((contents) => {
+
+                            expect(contents).to.startWith(`'use strict';`);
+
+                            return rimraf('list-as-file/lib/routes.js');
+                        })
+                };
+
+                return RunUtil.cli(['make', 'routes', '-f'], 'list-as-file')
+                    .then(check)
+                    .then(() => RunUtil.cli(['make', 'routes', '--asFile'], 'list-as-file'))
+                    .then(check);
+            });
+
+            it('creates a single item in a directory', () => {
+
+                const check = (result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/bind/index.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    return read('single-as-dir/lib/bind/index.js')
+                        .then((contents) => {
+
+                            expect(contents).to.startWith(`'use strict';`);
+
+                            return rimraf('single-as-dir/lib/bind');
+                        });
+                };
+
+                return RunUtil.cli(['make', 'bind', '-d'], 'single-as-dir')
+                    .then(check)
+                    .then(() => RunUtil.cli(['make', 'bind', '--asDir'], 'single-as-dir'))
+                    .then(check);
+            });
+
+            it('creates a single item as a file (default)', () => {
+
+                const check = (result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/bind.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    return read('single-as-file/lib/bind.js')
+                        .then((contents) => {
+
+                            expect(contents).to.startWith(`'use strict';`);
+
+                            return rimraf('single-as-file/lib/bind.js');
+                        })
+                };
+
+                return RunUtil.cli(['make', 'bind'], 'single-as-file')
+                    .then(check)
+                    .then(() => RunUtil.cli(['make', 'bind', '-f'], 'single-as-file'))
+                    .then(check)
+                    .then(() => RunUtil.cli(['make', 'bind', '--asFile'], 'single-as-file'))
+                    .then(check);
             });
         });
     });
