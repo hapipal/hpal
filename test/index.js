@@ -175,8 +175,8 @@ describe('paldo', () => {
                     });
             });
 
-            it('errors hard when writing a file fails.', { plan: 4 }, () => {
-                // TODO
+            it('errors hard when writing a file fails.', () => {
+
                 const writeFile = Fs.writeFile;
 
                 Fs.writeFile = (x, y, z, cb) => cb(new Error('Write badness'));
@@ -186,47 +186,36 @@ describe('paldo', () => {
                     Fs.writeFile = writeFile;
                 };
 
-                return RunUtil.cli(['make', 'routes'], 'early-error')
-                    .then(cleanup)
+                return RunUtil.cli(['make', 'routes'], 'write-fails')
+                    .then(() => {
+
+                        cleanup();
+
+                        throw new Error('Shouldn\'t end-up here');
+                    })
                     .catch((err) => {
 
                         cleanup();
 
                         expect(err).to.be.instanceof(Error);
                         expect(err).to.not.be.instanceof(DisplayError);
-                        expect(err.output).to.equal('');
                         expect(err.message).to.equal('Write badness');
+                        expect(err.output).to.equal('');
                     });
             });
 
-            it('errors hard when finding haute-couture fails in an unexpected way.', { plan: 4 }, () => {
-                // TODO
-                const req = global.require;
+            it('errors hard when finding haute-couture fails in an unexpected way.', () => {
 
-                global.require = (name) => {
+                return RunUtil.cli(['make', 'routes'], 'haute-couture-broken')
+                    .then(() => {
 
-                    if (~name.indexOf('haute-couture')) {
-                        throw new Error('Require badness');
-                    }
-
-                    return req(name);
-                };
-
-                const cleanup = () => {
-
-                    global.require = req;
-                };
-
-                return RunUtil.cli(['make', 'routes'], 'early-error')
-                    .then(cleanup)
+                        throw new Error('Shouldn\'t end-up here');
+                    })
                     .catch((err) => {
 
-                        cleanup();
-
-                        expect(err).to.be.instanceof(Error);
+                        expect(err).to.be.instanceof(SyntaxError);
                         expect(err).to.not.be.instanceof(DisplayError);
                         expect(err.output).to.equal('');
-                        expect(err.message).to.equal('Require badness');
                     });
             });
 
