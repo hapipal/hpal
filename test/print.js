@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint quotes: ["error", "single", { "allowTemplateLiterals": true }] */
+
 // Load modules
 
 const Os = require('os');
@@ -9,7 +11,6 @@ const Print = require('../lib/print');
 // Test shortcuts
 
 const lab = exports.lab = Lab.script();
-const before = lab.before;
 const describe = lab.describe;
 const it = lab.it;
 const expect = Lab.expect;

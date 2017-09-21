@@ -14,7 +14,6 @@ const Package = require('../package.json');
 // Test shortcuts
 
 const lab = exports.lab = Lab.script();
-const before = lab.before;
 const describe = lab.describe;
 const it = lab.it;
 const expect = Lab.expect;
@@ -230,7 +229,7 @@ describe('paldo', () => {
                     return read('list-as-dir/lib/routes/index.js')
                         .then((contents) => {
 
-                            expect(contents).to.startWith(`'use strict';`);
+                            expect(contents).to.startWith('\'use strict\';');
 
                             return rimraf('list-as-dir/lib/routes');
                         });
@@ -255,10 +254,10 @@ describe('paldo', () => {
                     return read('list-as-file/lib/routes.js')
                         .then((contents) => {
 
-                            expect(contents).to.startWith(`'use strict';`);
+                            expect(contents).to.startWith('\'use strict\';');
 
                             return rimraf('list-as-file/lib/routes.js');
-                        })
+                        });
                 };
 
                 return RunUtil.cli(['make', 'routes', '-f'], 'list-as-file')
@@ -278,7 +277,7 @@ describe('paldo', () => {
                     return read('single-as-dir/lib/bind/index.js')
                         .then((contents) => {
 
-                            expect(contents).to.startWith(`'use strict';`);
+                            expect(contents).to.startWith('\'use strict\';');
 
                             return rimraf('single-as-dir/lib/bind');
                         });
@@ -301,10 +300,10 @@ describe('paldo', () => {
                     return read('single-as-file/lib/bind.js')
                         .then((contents) => {
 
-                            expect(contents).to.startWith(`'use strict';`);
+                            expect(contents).to.startWith('\'use strict\';');
 
                             return rimraf('single-as-file/lib/bind.js');
-                        })
+                        });
                 };
 
                 return RunUtil.cli(['make', 'bind'], 'single-as-file')
@@ -327,7 +326,7 @@ describe('paldo', () => {
                         .then((contents) => {
 
                             expect(contents).to.equal([
-                                `'use strict';`,
+                                '\'use strict\';',
                                 '',
                                 'module.exports = {};'
                             ].join(Os.EOL));
@@ -351,7 +350,7 @@ describe('paldo', () => {
                         .then((contents) => {
 
                             expect(contents).to.equal([
-                                `'use strict';`,
+                                '\'use strict\';',
                                 '',
                                 'module.exports = {',
                                 '    a: null,',
@@ -361,7 +360,7 @@ describe('paldo', () => {
                             ].join(Os.EOL));
 
                             return rimraf('no-example-with-signature/lib/x.js');
-                        })
+                        });
                 };
 
                 return RunUtil.cli(['make', 'x'], 'no-example-with-signature').then(check);
@@ -379,7 +378,7 @@ describe('paldo', () => {
                         .then((contents) => {
 
                             expect(contents).to.equal([
-                                `'use strict';`,
+                                '\'use strict\';',
                                 '',
                                 'module.exports = {',
                                 '    a: {},',
@@ -389,7 +388,7 @@ describe('paldo', () => {
                             ].join(Os.EOL));
 
                             return rimraf('with-example-and-signature/lib/x.js');
-                        })
+                        });
                 };
 
                 return RunUtil.cli(['make', 'x'], 'with-example-and-signature').then(check);
@@ -407,7 +406,7 @@ describe('paldo', () => {
                         .then((contents) => {
 
                             expect(contents).to.equal([
-                                `'use strict';`,
+                                '\'use strict\';',
                                 '',
                                 'module.exports = [',
                                 '    {',
@@ -417,7 +416,7 @@ describe('paldo', () => {
                             ].join(Os.EOL));
 
                             return rimraf('listed-example/lib/x/index.js');
-                        })
+                        });
                 };
 
                 const checkNamed = (result) => {
@@ -430,7 +429,7 @@ describe('paldo', () => {
                         .then((contents) => {
 
                             expect(contents).to.equal([
-                                `'use strict';`,
+                                '\'use strict\';',
                                 '',
                                 'module.exports = {',
                                 '    a: 1',
@@ -438,7 +437,7 @@ describe('paldo', () => {
                             ].join(Os.EOL));
 
                             return rimraf('listed-example/lib/x/y.js');
-                        })
+                        });
                 };
 
                 return RunUtil.cli(['make', 'x'], 'listed-example')
