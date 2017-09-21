@@ -3,6 +3,7 @@
 // Load modules
 
 const Fs = require('fs');
+const Os = require('os');
 const Lab = require('lab');
 const Pify = require('pify');
 const Rimraf = require('rimraf');
@@ -174,6 +175,61 @@ describe('paldo', () => {
                     });
             });
 
+            it('errors hard when writing a file fails.', { plan: 4 }, () => {
+                // TODO
+                const writeFile = Fs.writeFile;
+
+                Fs.writeFile = (x, y, z, cb) => cb(new Error('Write badness'));
+
+                const cleanup = () => {
+
+                    Fs.writeFile = writeFile;
+                };
+
+                return RunUtil.cli(['make', 'routes'], 'early-error')
+                    .then(cleanup)
+                    .catch((err) => {
+
+                        cleanup();
+
+                        expect(err).to.be.instanceof(Error);
+                        expect(err).to.not.be.instanceof(DisplayError);
+                        expect(err.output).to.equal('');
+                        expect(err.message).to.equal('Write badness');
+                    });
+            });
+
+            it('errors hard when finding haute-couture fails in an unexpected way.', { plan: 4 }, () => {
+                // TODO
+                const req = global.require;
+
+                global.require = (name) => {
+
+                    if (~name.indexOf('haute-couture')) {
+                        throw new Error('Require badness');
+                    }
+
+                    return req(name);
+                };
+
+                const cleanup = () => {
+
+                    global.require = req;
+                };
+
+                return RunUtil.cli(['make', 'routes'], 'early-error')
+                    .then(cleanup)
+                    .catch((err) => {
+
+                        cleanup();
+
+                        expect(err).to.be.instanceof(Error);
+                        expect(err).to.not.be.instanceof(DisplayError);
+                        expect(err.output).to.equal('');
+                        expect(err.message).to.equal('Require badness');
+                    });
+            });
+
             it('creates a list item in a directory (default)', () => {
 
                 const check = (result) => {
@@ -268,6 +324,138 @@ describe('paldo', () => {
                     .then(check)
                     .then(() => RunUtil.cli(['make', 'bind', '--asFile'], 'single-as-file'))
                     .then(check);
+            });
+
+            it('writes file exporting {} when example and signature are absent.', () => {
+
+                const check = (result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/x.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    return read('no-example-or-signature/lib/x.js')
+                        .then((contents) => {
+
+                            expect(contents).to.equal([
+                                `'use strict';`,
+                                '',
+                                'module.exports = {};'
+                            ].join(Os.EOL));
+
+                            return rimraf('no-example-or-signature/lib/x.js');
+                        });
+                };
+
+                return RunUtil.cli(['make', 'x'], 'no-example-or-signature').then(check);
+            });
+
+            it('writes file with export built from signature when example is absent.', () => {
+
+                const check = (result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/x.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    return read('no-example-with-signature/lib/x.js')
+                        .then((contents) => {
+
+                            expect(contents).to.equal([
+                                `'use strict';`,
+                                '',
+                                'module.exports = {',
+                                '    a: null,',
+                                '    b: null, // Optional',
+                                '    c: null',
+                                '};'
+                            ].join(Os.EOL));
+
+                            return rimraf('no-example-with-signature/lib/x.js');
+                        })
+                };
+
+                return RunUtil.cli(['make', 'x'], 'no-example-with-signature').then(check);
+            });
+
+            it('writes file with export built from example when present.', () => {
+
+                const check = (result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/x.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    return read('with-example-and-signature/lib/x.js')
+                        .then((contents) => {
+
+                            expect(contents).to.equal([
+                                `'use strict';`,
+                                '',
+                                'module.exports = {',
+                                '    a: {},',
+                                '    b: 0, // Optional, yo!',
+                                '    c: []',
+                                '};'
+                            ].join(Os.EOL));
+
+                            return rimraf('with-example-and-signature/lib/x.js');
+                        })
+                };
+
+                return RunUtil.cli(['make', 'x'], 'with-example-and-signature').then(check);
+            });
+
+            it('wraps listed examples in an array.', () => {
+
+                const checkUnnamed = (result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/x/index.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    return read('listed-example/lib/x/index.js')
+                        .then((contents) => {
+
+                            expect(contents).to.equal([
+                                `'use strict';`,
+                                '',
+                                'module.exports = [',
+                                '    {',
+                                '        a: 1',
+                                '    }',
+                                '];'
+                            ].join(Os.EOL));
+
+                            return rimraf('listed-example/lib/x/index.js');
+                        })
+                };
+
+                const checkNamed = (result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/x/y.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    return read('listed-example/lib/x/y.js')
+                        .then((contents) => {
+
+                            expect(contents).to.equal([
+                                `'use strict';`,
+                                '',
+                                'module.exports = {',
+                                '    a: 1',
+                                '};'
+                            ].join(Os.EOL));
+
+                            return rimraf('listed-example/lib/x/y.js');
+                        })
+                };
+
+                return RunUtil.cli(['make', 'x'], 'listed-example')
+                    .then(checkUnnamed)
+                    .then(() => RunUtil.cli(['make', 'x', 'y'], 'listed-example'))
+                    .then(checkNamed);
             });
         });
     });
