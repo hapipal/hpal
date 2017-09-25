@@ -6,6 +6,7 @@
 
 const Os = require('os');
 const Lab = require('lab');
+const StripAnsi = require('strip-ansi');
 const Print = require('../lib/print');
 
 // Test shortcuts
@@ -453,6 +454,68 @@ describe('Print.example()', () => {
             '    () => 6',
             ']'
         ].join(Os.EOL));
+
+        done();
+    });
+});
+
+describe('Print.markdownSection()', () => {
+
+    const p = Print.markdownSection;
+
+    it('prints section in middle of markdown file.', (done) => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info',
+            '## H2-2',
+        ].join('\n');
+
+        const matcher = (h) => h === 'H2-1';
+
+        expect(StripAnsi(p(md, matcher))).to.equal([
+            '## H2-1',
+            'Header two info',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info',
+            ''
+        ].join('\n\n'));
+
+        done();
+    });
+
+    it('prints section at end of markdown file.', (done) => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info',
+        ].join('\n');
+
+        const matcher = (h) => h === 'H2-1';
+
+        expect(StripAnsi(p(md, matcher))).to.equal([
+            '## H2-1',
+            'Header two info',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info',
+            ''
+        ].join('\n\n'));
 
         done();
     });
