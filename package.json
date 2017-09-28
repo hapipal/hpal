@@ -24,6 +24,7 @@
   "dependencies": {
     "bossy": "3.x.x",
     "deglob": "2.x.x",
+    "json-stable-stringify": "1.x.x",
     "marked": "0.3.x",
     "marked-terminal": "2.x.x",
     "mkdirp": "0.5.x",
