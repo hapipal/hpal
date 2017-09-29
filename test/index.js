@@ -446,6 +446,25 @@ describe('paldo', () => {
                     .then(checkNamed);
             });
         });
+
+        describe('new command', () => {
+
+            const rimraf = (file) => Pify(Rimraf)(`${__dirname}/closet/${file}`, { disableGlob: true });
+
+            it('creates a new pal project.', { timeout: 5000 }, () => {
+
+                return RunUtil.stdioForSpawn()
+                    .then((stdio) => {
+
+                        stdio.out.on('data', (data) => {
+
+                            stdio.in.write('\r')
+                        });
+
+                        return RunUtil.cli(['new', 'my-project'], 'new', stdio);
+                    });
+            });
+        });
     });
 
     describe('bin', () => {

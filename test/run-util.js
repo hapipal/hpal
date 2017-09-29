@@ -3,6 +3,7 @@
 const ChildProcess = require('child_process');
 const Path = require('path');
 const Stream = require('stream');
+const Echo = require('./echo');
 const Paldo = require('..');
 const DisplayError = require('../lib/display-error');
 
@@ -40,11 +41,12 @@ exports.bin = (argv, cwd) => {
     });
 };
 
-exports.cli = (argv, cwd) => {
+exports.cli = (argv, cwd, opts) => {
 
+    opts = opts || {};
     argv = ['x', 'x'].concat(argv); // [node, script, ...args]
 
-    const out = new Stream.PassThrough();
+    const out = opts.out || new Stream.PassThrough();
 
     let output = '';
 
@@ -54,7 +56,7 @@ exports.cli = (argv, cwd) => {
     });
 
     return Promise.resolve()
-        .then(() => Paldo.start({ argv, out, cwd: cwd ? `${__dirname}/closet/${cwd}` : __dirname }))
+        .then(() => Paldo.start({ argv, out, in: opts.in, err: opts.err, cwd: cwd ? `${__dirname}/closet/${cwd}` : __dirname }))
         .then(() => ({ err: null, output, errorOutput: '' }))
         .catch((err) => {
 
@@ -65,4 +67,17 @@ exports.cli = (argv, cwd) => {
 
             return { err, output, errorOutput: err.message };
         });
+};
+
+exports.stdioForSpawn = () => {
+
+    return Promise.all([Echo.stream(), Echo.stream(), Echo.stream()])
+      .then((results) => {
+
+          return {
+              out: results[0],
+              in: results[1],
+              err: results[2],
+          };
+      })
 };

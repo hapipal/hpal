@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "coveralls": "2.x.x",
+    "duplexer2": "^0.1.4",
     "haute-couture": "2.x.x",
     "lab": "14.x.x",
     "rimraf": "2.x.x",
