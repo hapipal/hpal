@@ -555,7 +555,7 @@ describe('paldo', () => {
 
                 ChildProcess.exec = (cmd, opts, cb) => {
 
-                    if (cmd === 'npm -v') {
+                    if (cmd === 'npm --version') {
                         return execOrig('npm --bad-command', opts, cb);
                     }
 
