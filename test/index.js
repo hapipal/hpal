@@ -4,6 +4,7 @@
 
 const Fs = require('fs');
 const Os = require('os');
+const ChildProcess = require('child_process');
 const Lab = require('lab');
 const Pify = require('pify');
 const Rimraf = require('rimraf');
@@ -328,7 +329,8 @@ describe('paldo', () => {
                             expect(contents).to.equal([
                                 '\'use strict\';',
                                 '',
-                                'module.exports = {};'
+                                'module.exports = {};',
+                                ''
                             ].join(Os.EOL));
 
                             return rimraf('no-example-or-signature/lib/x.js');
@@ -356,7 +358,8 @@ describe('paldo', () => {
                                 '    a: null,',
                                 '    b: null, // Optional',
                                 '    c: null',
-                                '};'
+                                '};',
+                                ''
                             ].join(Os.EOL));
 
                             return rimraf('no-example-with-signature/lib/x.js');
@@ -384,7 +387,8 @@ describe('paldo', () => {
                                 '    a: {},',
                                 '    b: 0, // Optional, yo!',
                                 '    c: []',
-                                '};'
+                                '};',
+                                ''
                             ].join(Os.EOL));
 
                             return rimraf('with-example-and-signature/lib/x.js');
@@ -412,7 +416,8 @@ describe('paldo', () => {
                                 '    {',
                                 '        a: 1',
                                 '    }',
-                                '];'
+                                '];',
+                                ''
                             ].join(Os.EOL));
 
                             return rimraf('listed-example/lib/x/index.js');
@@ -433,7 +438,8 @@ describe('paldo', () => {
                                 '',
                                 'module.exports = {',
                                 '    a: 1',
-                                '};'
+                                '};',
+                                ''
                             ].join(Os.EOL));
 
                             return rimraf('listed-example/lib/x/y.js');
@@ -450,18 +456,168 @@ describe('paldo', () => {
         describe('new command', () => {
 
             const rimraf = (file) => Pify(Rimraf)(`${__dirname}/closet/${file}`, { disableGlob: true });
+            const read = (file) => Pify(Fs.readFile)(`${__dirname}/closet/${file}`, 'utf8');
+            const exists = (file) => Pify(Fs.stat)(`${__dirname}/closet/${file}`);
+            const exec = (cmd, cwd) => Pify(ChildProcess.exec, { multiArgs: true })(cmd, { cwd: `${__dirname}/closet/${cwd}` });
+            const rethrow = (fn) => {
 
-            it('creates a new pal project.', { timeout: 5000 }, () => {
+                return (err) => {
 
-                return RunUtil.stdioForSpawn()
-                    .then((stdio) => {
+                    return Promise.resolve(fn()).then(() => Promise.reject(err));
+                };
+            };
 
-                        stdio.out.on('data', (data) => {
+            it('creates a new pal project.', () => {
 
-                            stdio.in.write('\r')
-                        });
+                const cleanup = () => rimraf('new/my-project');
+                const cli = RunUtil.cli(['new', 'my-project'], 'new');
 
-                        return RunUtil.cli(['new', 'my-project'], 'new', stdio);
+                let choseName = false;
+
+                cli.args.out.on('data', (data) => {
+
+                    if (~data.toString().indexOf('package name:')) {
+                        choseName = true;
+                        cli.args.in.write('chosen-name');
+                    }
+
+                    if (choseName) {
+                        cli.args.in.write('\n'); // "Return" through the npm prompts
+                    }
+                });
+
+                return cli
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.output).to.contain('New pal project created in my-project');
+                        expect(result.errorOutput).to.equal('');
+
+                        return Promise.all([
+                            read('new/my-project/package.json'),
+                            exists('new/my-project/lib/index.js'),
+                            exists('new/my-project/test/index.js'),
+                            exec('git remote', 'new/my-project'),
+                            exec('git tag', 'new/my-project'),
+                            exec('git ls-files -m', 'new/my-project'),
+                            exec('git log', 'new/my-project').catch((results) => results[2])
+                        ]);
+                    })
+                    .then((results) => {
+
+                        const pkg = JSON.parse(results[0]);
+                        const lib = results[1];
+                        const test = results[2];
+                        const remotes = results[3][0].split('\n');
+                        const tags = results[4][0].split('\n');
+                        const modifiedFiles = results[5][0].trim();
+                        const logError = results[6];
+
+                        expect(pkg.name).to.equal('chosen-name');
+                        expect(pkg.version).to.equal('1.0.0');
+                        expect(pkg.dependencies).to.exist();
+                        expect(pkg.devDependencies).to.exist();
+                        expect(lib).to.exist();
+                        expect(test).to.exist();
+                        expect(remotes).to.contain('pal');
+                        expect(tags).to.contain('swagger');
+                        expect(tags).to.contain('custom-swagger');
+                        expect(tags).to.contain('deployment');
+                        expect(tags).to.contain('objection');
+                        expect(tags).to.contain('templated-site');
+                        expect(tags).to.contain('fancy-templated-site');
+                        expect(modifiedFiles).to.equal('');
+                        expect(logError).to.contain('your current branch \'master\' does not have any commits');
+
+                        return cleanup();
+                    })
+                    .catch(rethrow(cleanup));
+            });
+
+            it('errors if a directory is not specified.', () => {
+
+                return RunUtil.cli(['new'], 'new')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('You must specify a directory in which to start your project.');
+                    });
+            });
+
+            it('errors when git or npm are missing.', () => {
+
+                const execOrig = ChildProcess.exec;
+                const cleanup = () => {
+
+                    ChildProcess.exec = execOrig;
+                };
+
+                ChildProcess.exec = (cmd, opts, cb) => {
+
+                    if (cmd === 'npm -v') {
+                        return execOrig('npm --bad-command', opts, cb);
+                    }
+
+                    return execOrig(cmd, opts, cb);
+                };
+
+                return RunUtil.cli(['new', 'missing-npm'], 'new')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('To use this command you must have git installed and in your PATH');
+
+                        ChildProcess.exec = (cmd, opts, cb) => {
+
+                            if (cmd === 'git --version') {
+                                return execOrig('git --bad-command', opts, cb);
+                            }
+
+                            return execOrig(cmd, opts, cb);
+                        };
+
+                        return RunUtil.cli(['new', 'missing-git'], 'new');
+                    })
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('To use this command you must have git installed and in your PATH');
+
+                        return cleanup();
+                    })
+                    .catch(rethrow(cleanup));
+            });
+
+            it('errors when a spawn fails.', () => {
+
+                const spawnOrig = ChildProcess.spawn;
+                const cleanup = () => {
+
+                    ChildProcess.spawn = spawnOrig;
+
+                    return rimraf('new/bad-npm-init');
+                };
+
+                ChildProcess.spawn = (cmd, args, opts) => {
+
+                    if (cmd === 'npm') {
+                        return spawnOrig('npm', ['--bad-command'], opts);
+                    }
+
+                    return spawnOrig(cmd, args, opts);
+                };
+
+                return RunUtil.cli(['new', 'bad-npm-init'], 'new')
+                    .catch((err) => {
+
+                        expect(err).to.be.instanceof(Error);
+                        expect(err).to.not.be.instanceof(DisplayError);
+                        expect(err.message).to.contain('Failed with code: 1');
+
+                        return cleanup();
                     });
             });
         });

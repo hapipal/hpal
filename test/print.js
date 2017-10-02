@@ -474,7 +474,7 @@ describe('Print.markdownSection()', () => {
             'Header three first info',
             '### H3-2',
             'Header three second info',
-            '## H2-2',
+            '## H2-2'
         ].join('\n');
 
         const matcher = (h) => h === 'H2-1';
@@ -502,7 +502,7 @@ describe('Print.markdownSection()', () => {
             '### H3-1',
             'Header three first info',
             '### H3-2',
-            'Header three second info',
+            'Header three second info'
         ].join('\n');
 
         const matcher = (h) => h === 'H2-1';
