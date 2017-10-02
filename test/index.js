@@ -467,7 +467,7 @@ describe('paldo', () => {
                 };
             };
 
-            it('creates a new pal project.', () => {
+            it('creates a new pal project.', { timeout: 4000 }, () => {
 
                 const cleanup = () => rimraf('new/my-project');
                 const cli = RunUtil.cli(['new', 'my-project'], 'new');

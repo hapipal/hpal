@@ -31,6 +31,7 @@
     "pify": "3.x.x",
     "pkg-dir": "2.x.x",
     "pluralize": "7.x.x",
+    "semver": "5.x.x",
     "wreck": ">=12.3.0 <13"
   },
   "devDependencies": {
