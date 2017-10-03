@@ -479,7 +479,7 @@ describe('Print.markdownSection()', () => {
 
         const matcher = (h) => h === 'H2-1';
 
-        expect(StripAnsi(p(md, matcher))).to.equal([
+        expect(StripAnsi(p(md, [matcher]))).to.equal([
             '## H2-1',
             'Header two info',
             '### H3-1',
@@ -507,7 +507,7 @@ describe('Print.markdownSection()', () => {
 
         const matcher = (h) => h === 'H2-1';
 
-        expect(StripAnsi(p(md, matcher))).to.equal([
+        expect(StripAnsi(p(md, [matcher]))).to.equal([
             '## H2-1',
             'Header two info',
             '### H3-1',
@@ -516,6 +516,246 @@ describe('Print.markdownSection()', () => {
             'Header three second info',
             ''
         ].join('\n\n'));
+
+        done();
+    });
+
+    it('uses matchers in order, one at a time.', (done) => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info'
+        ].join('\n');
+
+        const matcherA = (h) => h === 'H3-2';
+        const matcherB = (h) => h.indexOf('H3') === 0;
+
+        expect(StripAnsi(p(md, [matcherA, matcherB]))).to.equal([
+            '### H3-2',
+            'Header three second info',
+            ''
+        ].join('\n\n'));
+
+        done();
+    });
+
+    it('returns null on no match.', (done) => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info'
+        ].join('\n');
+
+        const matcher = (h) => h === 'nope';
+
+        expect(StripAnsi(p(md, [matcher]))).to.equal(null);
+
+        done();
+    });
+});
+
+describe('Print.markdownListItem()', () => {
+
+    const p = Print.markdownListItem;
+
+    it('prints list item.', (done) => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '  - item',
+            '',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info',
+            '## H2-2'
+        ].join('\n');
+
+        const hMatcher = (h) => h === 'H2-1';
+        const lMatcher = (l) => l.indexOf('item') === 0;
+
+        expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal([
+            '## H2-1',
+            '',
+            '',
+            'item'
+        ].join('\n'));
+
+        done();
+    });
+
+    it('prints loose list item.', (done) => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '  - item',
+            '',
+            '    but that\'s not all',
+            '',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info',
+            '## H2-2'
+        ].join('\n');
+
+        const hMatcher = (h) => h === 'H2-1';
+        const lMatcher = (l) => l.indexOf('item') === 0;
+
+        expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal([
+            '## H2-1',
+            '',
+            '',
+            'item',
+            '',
+            'but that\'s not all'
+        ].join('\n'));
+
+        done();
+    });
+
+    it('prints nested list item.', (done) => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '  - item',
+            '',
+            '    - sub 1',
+            '    - sub 2',
+            '',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info',
+            '## H2-2'
+        ].join('\n');
+
+        const hMatcher = (h) => h === 'H2-1';
+        const lMatcher = (l) => l.indexOf('item') === 0;
+
+        expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal([
+            '## H2-1',
+            '',
+            '',
+            'item',
+            '',
+            '    * sub 1',
+            '    * sub 2'
+        ].join('\n'));
+
+        done();
+    });
+
+    it('returns null when section is found but list item isn\'t.', (done) => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '  - item'
+        ].join('\n');
+
+        const hMatcher = (h) => h === 'H2-1';
+        const lMatcher = (l) => l.indexOf('xxxx') === 0;
+
+        expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal(null);
+
+        done();
+    });
+
+    it('returns null when section isn\'t found.', (done) => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '  - item'
+        ].join('\n');
+
+        const hMatcher = (h) => h === 'H2-xxx';
+        const lMatcher = (l) => l.indexOf('item') === 0;
+
+        expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal(null);
+
+        done();
+    });
+
+    it('returns null when section isn\'t found due to non-text content.', (done) => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '  - ```',
+            'code',
+            '```',
+            '',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info',
+            '## H2-2'
+        ].join('\n');
+
+        const hMatcher = (h) => h === 'H2-1';
+        const lMatcher = (l) => ~l.indexOf('```') || ~l.indexOf('code');
+
+        expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal(null);
+
+        done();
+    });
+
+    it('uses header matchers in order, one at a time.', (done) => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '### H3-1',
+            'Header three first info',
+            ' - item',
+            '',
+            '### H3-2',
+            'Header three second info',
+            ' - item',
+            ''
+        ].join('\n');
+
+        const hMatcherA = (h) => h === 'H3-2';
+        const hMatcherB = (h) => h.indexOf('H3') === 0;
+        const lMatcher = (l) => l.indexOf('item') === 0;
+
+        expect(StripAnsi(p(md, [hMatcherA, hMatcherB], lMatcher))).to.equal([
+            '### H3-2',
+            '',
+            '',
+            'item'
+        ].join('\n'));
 
         done();
     });
