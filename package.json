@@ -35,6 +35,7 @@
     "wreck": ">=12.3.0 <13"
   },
   "devDependencies": {
+    "boom": "5.x.x",
     "coveralls": "2.x.x",
     "duplexer2": "^0.1.4",
     "haute-couture": "2.x.x",

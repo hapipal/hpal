@@ -8,6 +8,8 @@ const ChildProcess = require('child_process');
 const Lab = require('lab');
 const Pify = require('pify');
 const Rimraf = require('rimraf');
+const Boom = require('boom');
+const Wreck = require('wreck');
 const RunUtil = require('./run-util');
 const DisplayError = require('../lib/display-error');
 const Package = require('../package.json');
@@ -24,6 +26,14 @@ const internals = {};
 describe('paldo', () => {
 
     describe('CLI', () => {
+
+        const rethrow = (fn) => {
+
+            return (err) => {
+
+                return Promise.resolve(fn()).then(() => Promise.reject(err));
+            };
+        };
 
         it('outputs help [-h, --help]', () => {
 
@@ -459,13 +469,6 @@ describe('paldo', () => {
             const read = (file) => Pify(Fs.readFile)(`${__dirname}/closet/${file}`, 'utf8');
             const exists = (file) => Pify(Fs.stat)(`${__dirname}/closet/${file}`);
             const exec = (cmd, cwd) => Pify(ChildProcess.exec, { multiArgs: true })(cmd, { cwd: `${__dirname}/closet/${cwd}` });
-            const rethrow = (fn) => {
-
-                return (err) => {
-
-                    return Promise.resolve(fn()).then(() => Promise.reject(err));
-                };
-            };
 
             it('creates a new pal project.', { timeout: 4000 }, () => {
 
@@ -619,6 +622,98 @@ describe('paldo', () => {
 
                         return cleanup();
                     });
+            });
+        });
+
+        describe('docs command', () => {
+
+            const mockWreckGet = (err) => {
+
+                const get = Wreck.get;
+                const calls = [];
+                const cleanup = () => {
+
+                    Wreck.get = get;
+                };
+
+                Wreck.get = (url) => {
+
+                    calls.push(url);
+
+                    if (err) {
+                        return Promise.reject(err);
+                    }
+
+                    return Pify(Fs.readFile)(`${__dirname}/closet/API.md`).then((payload) => ({ payload }));
+                };
+
+                return { calls, cleanup };
+            };
+
+            it('errors when fetching the hapi docs 404s.', () => {
+
+                const mockWreck = mockWreckGet(Boom.notFound());
+                const cleanup = mockWreck.cleanup;
+
+                return RunUtil.cli(['docs', 'xxx'])
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Couldn\'t find docs for that version of hapi. Are you sure it\'s a published version?');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
+            });
+
+            it('errors when getting the hapi docs can\'t be fetched.', () => {
+
+
+            });
+
+            it('notifies the user on stderr when a haute-couture manifest can\'t be used.', () => {
+
+
+            });
+
+            it('defaults to fetch the version of hapi docs for the version used in the current project.', () => {
+
+
+            });
+
+            it('fetches the version of hapi docs for the version specified by [--hapi].', () => {
+
+
+            });
+
+            it('errors when the hapi version specified by [--hapi] isn\'t semver valid.', () => {
+
+
+            });
+
+            it('errors when there is no docs query.', () => {
+
+
+            });
+
+            it('matches section case-insensitively on haute-couture item, then method, then query.', () => {
+
+
+            });
+
+            it('matches on query only when it has at least three characters.', () => {
+
+
+            });
+
+            it('matches on anchorized query.', () => {
+
+
+            });
+
+            it('matches on a section\'s single configuration item.', () => {
+
+
             });
         });
     });

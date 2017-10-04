@@ -627,7 +627,7 @@ describe('Print.markdownListItem()', () => {
             '    * item',
             '    * but that\'s not all',
             '',
-            '',
+            ''
         ].join('\n'));
 
         done();
