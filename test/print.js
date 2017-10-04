@@ -592,8 +592,9 @@ describe('Print.markdownListItem()', () => {
         expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal([
             '## H2-1',
             '',
+            '    * item',
             '',
-            'item'
+            ''
         ].join('\n'));
 
         done();
@@ -623,10 +624,10 @@ describe('Print.markdownListItem()', () => {
         expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal([
             '## H2-1',
             '',
+            '    * item',
+            '    * but that\'s not all',
             '',
-            'item',
             '',
-            'but that\'s not all'
         ].join('\n'));
 
         done();
@@ -657,11 +658,11 @@ describe('Print.markdownListItem()', () => {
         expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal([
             '## H2-1',
             '',
+            '    * item',
+            '        * sub 1',
+            '        * sub 2',
             '',
-            'item',
-            '',
-            '    * sub 1',
-            '    * sub 2'
+            ''
         ].join('\n'));
 
         done();
@@ -753,8 +754,9 @@ describe('Print.markdownListItem()', () => {
         expect(StripAnsi(p(md, [hMatcherA, hMatcherB], lMatcher))).to.equal([
             '### H3-2',
             '',
+            '    * item',
             '',
-            'item'
+            ''
         ].join('\n'));
 
         done();
