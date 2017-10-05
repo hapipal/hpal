@@ -8,6 +8,7 @@ const ChildProcess = require('child_process');
 const Lab = require('lab');
 const Pify = require('pify');
 const Rimraf = require('rimraf');
+const StripAnsi = require('strip-ansi');
 const Boom = require('boom');
 const Wreck = require('wreck');
 const RunUtil = require('./run-util');
@@ -570,7 +571,7 @@ describe('paldo', () => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
-                        expect(result.errorOutput).to.contain('To use this command you must have git installed and in your PATH');
+                        expect(result.errorOutput).to.contain('To use this command you must have git and npm installed and in your PATH');
 
                         ChildProcess.exec = (cmd, opts, cb) => {
 
@@ -587,10 +588,9 @@ describe('paldo', () => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
-                        expect(result.errorOutput).to.contain('To use this command you must have git installed and in your PATH');
-
-                        return cleanup();
+                        expect(result.errorOutput).to.contain('To use this command you must have git and npm installed and in your PATH');
                     })
+                    .then(cleanup)
                     .catch(rethrow(cleanup));
             });
 
@@ -614,14 +614,18 @@ describe('paldo', () => {
                 };
 
                 return RunUtil.cli(['new', 'bad-npm-init'], 'new')
+                    .then(() => {
+
+                        throw new Error('Shouldn\'t end-up here');
+                    })
                     .catch((err) => {
 
                         expect(err).to.be.instanceof(Error);
                         expect(err).to.not.be.instanceof(DisplayError);
                         expect(err.message).to.contain('Failed with code: 1');
-
-                        return cleanup();
-                    });
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
             });
         });
 
@@ -642,6 +646,10 @@ describe('paldo', () => {
 
                     if (err) {
                         return Promise.reject(err);
+                    }
+
+                    if (err === null) {
+                        return Promise.resolve({ payload: Buffer.from('') });
                     }
 
                     return Pify(Fs.readFile)(`${__dirname}/closet/API.md`).then((payload) => ({ payload }));
@@ -666,54 +674,291 @@ describe('paldo', () => {
                     .catch(rethrow(cleanup));
             });
 
-            it('errors when getting the hapi docs can\'t be fetched.', () => {
+            it('errors when the hapi docs can\'t be fetched (boom error).', () => {
 
+                const mockWreck = mockWreckGet(Boom.badImplementation());
+                const cleanup = mockWreck.cleanup;
 
+                return RunUtil.cli(['docs', 'xxx'])
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Could not fetch the hapi docs: Internal Server Error');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
+            });
+
+            it('errors when the hapi docs can\'t be fetched (non-boom error).', () => {
+
+                const mockWreck = mockWreckGet(new Error('No way can you get those docs'));
+                const cleanup = mockWreck.cleanup;
+
+                return RunUtil.cli(['docs', 'xxx'])
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Could not fetch the hapi docs: No way can you get those docs');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
+            });
+
+            it('errors when hapi package is corrupted and version can\'t be determined.', () => {
+
+                const mockWreck = mockWreckGet(null);
+                const cleanup = mockWreck.cleanup;
+
+                return RunUtil.cli(['docs', 'xxx'], 'corrupted-hapi-version')
+                    .then(() => {
+
+                        throw new Error('Shouldn\'t end-up here');
+                    })
+                    .catch((err) => {
+
+                        expect(err).to.be.instanceof(Error);
+                        expect(err).to.not.be.instanceof(DisplayError);
+                        expect(err.message).to.contain('Cannot read property \'version\' of null');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
             });
 
             it('notifies the user on stderr when a haute-couture manifest can\'t be used.', () => {
 
+                const mockWreck = mockWreckGet(null);
+                const cleanup = mockWreck.cleanup;
 
+                const cli = RunUtil.cli(['docs', 'xxx'], 'no-haute-couture');
+
+                let stderr = '';
+                cli.args.err.on('data', (data) => {
+
+                    stderr += data;
+                });
+
+                return cli
+                    .then((result) => {
+
+                        expect(stderr).to.contain('(Just so you know, we couldn\'t load a haute-couture manifest, so we can\'t search the hapi docs quite as intelligently as usual.)');
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
             });
 
             it('defaults to fetch the version of hapi docs for the version used in the current project.', () => {
 
+                const mockWreck = mockWreckGet(null);
+                const cleanup = mockWreck.cleanup;
 
+                return RunUtil.cli(['docs', 'xxx'], 'specific-hapi-version')
+                    .then((result) => {
+
+                        expect(mockWreck.calls).to.equal([
+                            'https://raw.githubusercontent.com/hapijs/hapi/v6.6.6/API.md'
+                        ]);
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
             });
 
             it('fetches the version of hapi docs for the version specified by [--hapi].', () => {
 
+                const mockWreck = mockWreckGet(null);
+                const cleanup = mockWreck.cleanup;
 
+                return RunUtil.cli(['docs', 'xxx', '--hapi', '4.2.0'], 'specific-hapi-version')
+                    .then((result) => {
+
+                        expect(mockWreck.calls).to.equal([
+                            'https://raw.githubusercontent.com/hapijs/hapi/v4.2.0/API.md'
+                        ]);
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
             });
 
             it('errors when the hapi version specified by [--hapi] isn\'t semver valid.', () => {
 
+                const mockWreck = mockWreckGet(null);
+                const cleanup = mockWreck.cleanup;
 
+                return RunUtil.cli(['docs', 'xxx', '--hapi', '4.2.x'], 'specific-hapi-version')
+                    .then((result) => {
+
+                        expect(mockWreck.calls).to.equal([]);
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('The --hapi option should specify a valid semver version. "4.2.x" is invalid.');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
             });
 
             it('errors when there is no docs query.', () => {
 
+                const mockWreck = mockWreckGet(null);
+                const cleanup = mockWreck.cleanup;
 
+                return RunUtil.cli(['docs'])
+                    .then((result) => {
+
+                        expect(mockWreck.calls).to.equal([]);
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('You must specify a search query to find a section in the hapi docs.');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
             });
 
             it('matches section case-insensitively on haute-couture item, then method, then query.', () => {
 
+                const mockWreck = mockWreckGet();
+                const cleanup = mockWreck.cleanup;
 
+                let stderr = '';
+
+                return Promise.resolve()
+                    .then(() => {
+
+                        const cli = RunUtil.cli(['docs', 'plugin'], 'single-as-file');
+
+                        cli.args.err.on('data', (data) => {
+
+                            stderr += data;
+                        });
+
+                        return cli;
+                    })
+                    .then((result) => {
+
+                        expect(stderr).to.equal('');                            // Ensure no missing haoute-couture warning
+                        expect(result.err).to.not.exist();
+                        expect(StripAnsi(result.output)).to.contain('# server.register('); // Matched using haute-couture manifest
+                        expect(result.errorOutput).to.equal('');
+
+                        return RunUtil.cli(['docs', 'ext'], 'single-as-file');
+                    })
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(StripAnsi(result.output)).to.contain('# server.ext(');      // Matching server.ext() method before something earlier with a "next" callback
+                        expect(result.errorOutput).to.equal('');
+
+                        return RunUtil.cli(['docs', 'lifecycle'], 'single-as-file');
+                    })
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(StripAnsi(result.output)).to.contain('# Request lifecycle'); // Solely based upon the query, no parens
+                        expect(result.errorOutput).to.equal('');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
             });
 
             it('matches on query only when it has at least three characters.', () => {
 
+                const mockWreck = mockWreckGet();
+                const cleanup = mockWreck.cleanup;
 
+                return RunUtil.cli(['docs', 'rv']) // Would definitely find "server.anything()"
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "rv".');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
             });
 
             it('matches on anchorized query.', () => {
 
+                const mockWreck = mockWreckGet();
+                const cleanup = mockWreck.cleanup;
 
+                return RunUtil.cli(['docs', '#serverstatename-options'])
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(StripAnsi(result.output)).to.contain('# server.state(name, [options])');
+                        expect(result.errorOutput).to.equal('');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
+            });
+
+            it('matches on pluralized haute-couture item.', () => {
+
+                const mockWreck = mockWreckGet();
+                const cleanup = mockWreck.cleanup;
+
+                return RunUtil.cli(['docs', 'cache'], 'single-as-dir')
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(StripAnsi(result.output)).to.contain('# server.cache.provision(options, [callback])');
+                        expect(result.errorOutput).to.equal('');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
             });
 
             it('matches on a section\'s single configuration item.', () => {
 
+                const mockWreck = mockWreckGet();
+                const cleanup = mockWreck.cleanup;
 
+                return RunUtil.cli(['docs', '#route-options', 'json'])
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+
+                        const output = StripAnsi(result.output);
+
+                        expect(output).to.contain('# Route options');
+                        expect(output).to.contain('    * json -');
+                        expect(output).to.contain('        * replacer -');
+                        expect(output).to.contain('        * space -');
+                        expect(output).to.contain('        * suffix -');
+                        expect(output).to.contain('        * escape -');
+                        expect(output).to.not.contain('* id -');
+
+                        expect(result.errorOutput).to.equal('');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
+            });
+
+            it('errors when can\'t match single configuration item.', () => {
+
+                const mockWreck = mockWreckGet();
+                const cleanup = mockWreck.cleanup;
+
+                return RunUtil.cli(['docs', '#route-options', 'nope'])
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "#route-options nope".');
+                    })
+                    .then(cleanup)
+                    .catch(rethrow(cleanup));
             });
         });
     });
