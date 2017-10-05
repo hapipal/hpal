@@ -859,12 +859,28 @@ describe('paldo', () => {
                         expect(StripAnsi(result.output)).to.contain('# server.ext(');      // Matching server.ext() method before something earlier with a "next" callback
                         expect(result.errorOutput).to.equal('');
 
-                        return RunUtil.cli(['docs', 'lifecycle'], 'single-as-file');
+                        return RunUtil.cli(['docs', 'lifeCycle'], 'single-as-file');
                     })
                     .then((result) => {
 
                         expect(result.err).to.not.exist();
                         expect(StripAnsi(result.output)).to.contain('# Request lifecycle'); // Solely based upon the query, no parens
+                        expect(result.errorOutput).to.equal('');
+
+                        return RunUtil.cli(['docs', 'eXT'], 'single-as-file');
+                    })
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(StripAnsi(result.output)).to.contain('# server.ext(');       // Case
+                        expect(result.errorOutput).to.equal('');
+
+                        return RunUtil.cli(['docs', 'plUGins'], 'single-as-file');
+                    })
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(StripAnsi(result.output)).to.contain('# server.register('); // Direct (non-plural) haute-couture match
                         expect(result.errorOutput).to.equal('');
                     })
                     .then(cleanup)
