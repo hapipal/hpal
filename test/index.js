@@ -471,7 +471,7 @@ describe('paldo', () => {
             const exists = (file) => Pify(Fs.stat)(`${__dirname}/closet/${file}`);
             const exec = (cmd, cwd) => Pify(ChildProcess.exec, { multiArgs: true })(cmd, { cwd: `${__dirname}/closet/${cwd}` });
 
-            it('creates a new pal project.', { timeout: 4000 }, () => {
+            it('creates a new pal project.', { timeout: 6000 }, () => {
 
                 const cleanup = () => rimraf('new/my-project');
                 const cli = RunUtil.cli(['new', 'my-project'], 'new');
@@ -594,7 +594,7 @@ describe('paldo', () => {
                     .catch(rethrow(cleanup));
             });
 
-            it('errors when a spawn fails.', () => {
+            it('errors when a spawn fails.', { timeout: 5000 }, () => {
 
                 const spawnOrig = ChildProcess.spawn;
                 const cleanup = () => {

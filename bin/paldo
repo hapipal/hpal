@@ -3,8 +3,15 @@
 const Paldo = require('..');
 const DisplayError = require('../lib/display-error');
 
-Promise.resolve()
-    .then(() => Paldo.start({ argv: process.argv, in: process.stdin, out: process.stdout, err: process.stderr, cwd: process.cwd() }))
+Promise.resolve({
+    argv: process.argv,
+    in: process.stdin,
+    out: process.stdout,
+    err: process.stderr,
+    cwd: process.cwd(),
+    colors: require('supports-color')
+})
+    .then(Paldo.start)
     .then(() => process.exit(0))
     .catch((err) => {
 
