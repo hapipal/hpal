@@ -479,7 +479,7 @@ describe('paldo', () => {
             const exists = (file) => Pify(Fs.stat)(`${__dirname}/closet/${file}`);
             const exec = (cmd, cwd) => Pify(ChildProcess.exec, { multiArgs: true })(cmd, { cwd: `${__dirname}/closet/${cwd}` });
 
-            it('creates a new pal project.', { timeout: 7500 }, (done, onCleanup) => {
+            it('creates a new pal project.', { timeout: 5000 }, (done, onCleanup) => {
 
                 onCleanup((next) => rimraf('new/my-project').then(next, next));
 
@@ -489,13 +489,15 @@ describe('paldo', () => {
 
                 cli.args.out.on('data', (data) => {
 
-                    if (~data.toString().indexOf('package name:')) {
+                    data = data.toString();
+
+                    if (~data.indexOf('name:')) {
                         choseName = true;
-                        cli.args.in.write('chosen-name');
+                        process.nextTick(() => cli.args.in.write('chosen-name'));
                     }
 
                     if (choseName) {
-                        cli.args.in.write('\n'); // "Return" through the npm prompts
+                        process.nextTick(() => cli.args.in.write('\n')); // "Return" through the npm prompts
                     }
                 });
 
@@ -601,7 +603,7 @@ describe('paldo', () => {
                     .then(done, done);
             });
 
-            it('errors when a spawn fails.', { timeout: 5000 }, (done, onCleanup) => {
+            it('errors when npm init fails.', { timeout: 5000 }, (done, onCleanup) => {
 
                 const spawnOrig = ChildProcess.spawn;
                 onCleanup((next) => {
