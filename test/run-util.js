@@ -40,7 +40,7 @@ exports.bin = (argv, cwd) => {
     });
 };
 
-exports.cli = (argv, cwd) => {
+exports.cli = (argv, cwd, colors) => {
 
     argv = ['x', 'x'].concat(argv); // [node, script, ...args]
 
@@ -60,7 +60,8 @@ exports.cli = (argv, cwd) => {
         in: stdin,
         out: stdout,
         err: stderr,
-        cwd: cwd ? `${__dirname}/closet/${cwd}` : __dirname
+        cwd: cwd ? `${__dirname}/closet/${cwd}` : __dirname,
+        colors: !!colors
     };
 
     const cli = Promise.resolve()

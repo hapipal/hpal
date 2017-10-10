@@ -93,6 +93,26 @@ describe('paldo', () => {
                 });
         });
 
+        it('outputs with or without color.', () => {
+
+            return RunUtil.cli(['clank'], null, true)
+                .then((result) => {
+
+                    expect(result.err).to.be.instanceof(DisplayError);
+                    expect(result.output).to.equal('');
+                    expect(result.errorOutput).to.contain('\u001b[31mUnknown command: clank\u001b[0m');
+
+                    return RunUtil.cli(['clank'], null, false);
+                })
+                .then((result) => {
+
+                    expect(result.err).to.be.instanceof(DisplayError);
+                    expect(result.output).to.equal('');
+                    expect(result.errorOutput).to.contain('Unknown command: clank');
+                    expect(result.errorOutput).to.not.contain('\u001b[31mUnknown command: clank\u001b[0m');
+                });
+        });
+
         describe('make command', () => {
 
             it('errors when there\'s no .hc.js file found.', () => {
@@ -459,7 +479,7 @@ describe('paldo', () => {
             const exists = (file) => Pify(Fs.stat)(`${__dirname}/closet/${file}`);
             const exec = (cmd, cwd) => Pify(ChildProcess.exec, { multiArgs: true })(cmd, { cwd: `${__dirname}/closet/${cwd}` });
 
-            it('creates a new pal project.', { timeout: 6000 }, (done, onCleanup) => {
+            it('creates a new pal project.', { timeout: 7500 }, (done, onCleanup) => {
 
                 onCleanup((next) => rimraf('new/my-project').then(next, next));
 
