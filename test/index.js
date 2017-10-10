@@ -28,15 +28,10 @@ describe('paldo', () => {
 
     describe('CLI', () => {
 
-        const rethrow = (fn) => {
+        const rimraf = (file) => Pify(Rimraf)(`${__dirname}/closet/${file}`, { disableGlob: true });
+        const read = (file) => Pify(Fs.readFile)(`${__dirname}/closet/${file}`, 'utf8');
 
-            return (err) => {
-
-                return Promise.resolve(fn()).then(() => Promise.reject(err));
-            };
-        };
-
-        it('outputs help [-h, --help]', () => {
+        it('outputs help [-h, --help].', () => {
 
             return RunUtil.cli(['-h'])
                 .then((result) => {
@@ -55,7 +50,7 @@ describe('paldo', () => {
                 });
         });
 
-        it('outputs version [-v, --version]', () => {
+        it('outputs version [-v, --version].', () => {
 
             return RunUtil.cli(['-v'])
                 .then((result) => {
@@ -74,7 +69,7 @@ describe('paldo', () => {
                 });
         });
 
-        it('outputs usage on misused flags', () => {
+        it('outputs usage on misused flags.', () => {
 
             return RunUtil.cli(['--notaflag'])
                 .then((result) => {
@@ -86,7 +81,7 @@ describe('paldo', () => {
                 });
         });
 
-        it('outputs usage on non-existent command', () => {
+        it('outputs usage on non-existent command.', () => {
 
             return RunUtil.cli(['clank'])
                 .then((result) => {
@@ -100,10 +95,7 @@ describe('paldo', () => {
 
         describe('make command', () => {
 
-            const rimraf = (file) => Pify(Rimraf)(`${__dirname}/closet/${file}`, { disableGlob: true });
-            const read = (file) => Pify(Fs.readFile)(`${__dirname}/closet/${file}`, 'utf8');
-
-            it('errors when there\'s no .hc.js file found', () => {
+            it('errors when there\'s no .hc.js file found.', () => {
 
                 return RunUtil.cli(['make', 'route'], 'no-hc-file')
                     .then((result) => {
@@ -114,7 +106,7 @@ describe('paldo', () => {
                     });
             });
 
-            it('errors when finding a .hc.js file is ambiguous', () => {
+            it('errors when finding a .hc.js file is ambiguous.', () => {
 
                 return RunUtil.cli(['make', 'route'], 'ambiguous-hc-file')
                     .then((result) => {
@@ -128,7 +120,7 @@ describe('paldo', () => {
                     });
             });
 
-            it('errors when haute-couture cannot be found', () => {
+            it('errors when haute-couture cannot be found.', () => {
 
                 return RunUtil.cli(['make', 'route'], 'no-haute-couture')
                     .then((result) => {
@@ -139,7 +131,7 @@ describe('paldo', () => {
                     });
             });
 
-            it('errors when file to create already exists', () => {
+            it('errors when file to create already exists.', () => {
 
                 return RunUtil.cli(['make', 'route', 'some-route'], 'file-already-exists')
                     .then((result) => {
@@ -152,7 +144,7 @@ describe('paldo', () => {
                     });
             });
 
-            it('errors when trying to create a non-existent item', () => {
+            it('errors when trying to create a non-existent item.', () => {
 
                 return RunUtil.cli(['make', 'nonsense'], 'item-doesnt-exist')
                     .then((result) => {
@@ -164,7 +156,7 @@ describe('paldo', () => {
                     });
             });
 
-            it('errors when trying to create a non-list item with a name', () => {
+            it('errors when trying to create a non-list item with a name.', () => {
 
                 return RunUtil.cli(['make', 'view-manager', 'spunky'], 'cant-have-name')
                     .then((result) => {
@@ -175,7 +167,7 @@ describe('paldo', () => {
                     });
             });
 
-            it('errors when trying to make an item as both a file and a directory', () => {
+            it('errors when trying to make an item as both a file and a directory.', () => {
 
                 return RunUtil.cli(['make', 'routes', '-f', '-d'], 'file-dir-conflict')
                     .then((result) => {
@@ -186,33 +178,31 @@ describe('paldo', () => {
                     });
             });
 
-            it('errors hard when writing a file fails.', () => {
+            it('errors hard when writing a file fails.', (done, onCleanup) => {
 
                 const writeFile = Fs.writeFile;
 
                 Fs.writeFile = (x, y, z, cb) => cb(new Error('Write badness'));
 
-                const cleanup = () => {
+                onCleanup((next) => {
 
                     Fs.writeFile = writeFile;
-                };
+                    next();
+                });
 
-                return RunUtil.cli(['make', 'routes'], 'write-fails')
+                RunUtil.cli(['make', 'routes'], 'write-fails')
                     .then(() => {
-
-                        cleanup();
 
                         throw new Error('Shouldn\'t end-up here');
                     })
                     .catch((err) => {
 
-                        cleanup();
-
                         expect(err).to.be.instanceof(Error);
                         expect(err).to.not.be.instanceof(DisplayError);
                         expect(err.message).to.equal('Write badness');
                         expect(err.output).to.equal('');
-                    });
+                    })
+                    .then(done, done);
             });
 
             it('errors hard when finding haute-couture fails in an unexpected way.', () => {
@@ -230,7 +220,7 @@ describe('paldo', () => {
                     });
             });
 
-            it('creates a list item in a directory (default)', () => {
+            it('creates a list item in a directory (default).', () => {
 
                 const check = (result) => {
 
@@ -255,7 +245,7 @@ describe('paldo', () => {
                     .then(check);
             });
 
-            it('creates a list item as a file', () => {
+            it('creates a list item as a file.', () => {
 
                 const check = (result) => {
 
@@ -278,7 +268,7 @@ describe('paldo', () => {
                     .then(check);
             });
 
-            it('creates a single item in a directory', () => {
+            it('creates a single item in a directory.', () => {
 
                 const check = (result) => {
 
@@ -301,7 +291,7 @@ describe('paldo', () => {
                     .then(check);
             });
 
-            it('creates a single item as a file (default)', () => {
+            it('creates a single item as a file (default).', () => {
 
                 const check = (result) => {
 
@@ -466,14 +456,13 @@ describe('paldo', () => {
 
         describe('new command', () => {
 
-            const rimraf = (file) => Pify(Rimraf)(`${__dirname}/closet/${file}`, { disableGlob: true });
-            const read = (file) => Pify(Fs.readFile)(`${__dirname}/closet/${file}`, 'utf8');
             const exists = (file) => Pify(Fs.stat)(`${__dirname}/closet/${file}`);
             const exec = (cmd, cwd) => Pify(ChildProcess.exec, { multiArgs: true })(cmd, { cwd: `${__dirname}/closet/${cwd}` });
 
-            it('creates a new pal project.', { timeout: 6000 }, () => {
+            it('creates a new pal project.', { timeout: 6000 }, (done, onCleanup) => {
 
-                const cleanup = () => rimraf('new/my-project');
+                onCleanup((next) => rimraf('new/my-project').then(next, next));
+
                 const cli = RunUtil.cli(['new', 'my-project'], 'new');
 
                 let choseName = false;
@@ -490,7 +479,7 @@ describe('paldo', () => {
                     }
                 });
 
-                return cli
+                cli
                     .then((result) => {
 
                         expect(result.err).to.not.exist();
@@ -532,10 +521,8 @@ describe('paldo', () => {
                         expect(tags).to.contain('fancy-templated-site');
                         expect(modifiedFiles).to.equal('');
                         expect(logError).to.contain('your current branch \'master\' does not have any commits');
-
-                        return cleanup();
                     })
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
             it('errors if a directory is not specified.', () => {
@@ -549,13 +536,14 @@ describe('paldo', () => {
                     });
             });
 
-            it('errors when git or npm are missing.', () => {
+            it('errors when git or npm are missing.', (done, onCleanup) => {
 
                 const execOrig = ChildProcess.exec;
-                const cleanup = () => {
+                onCleanup((next) => {
 
                     ChildProcess.exec = execOrig;
-                };
+                    next();
+                });
 
                 ChildProcess.exec = (cmd, opts, cb) => {
 
@@ -566,7 +554,7 @@ describe('paldo', () => {
                     return execOrig(cmd, opts, cb);
                 };
 
-                return RunUtil.cli(['new', 'missing-npm'], 'new')
+                RunUtil.cli(['new', 'missing-npm'], 'new')
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
@@ -590,19 +578,18 @@ describe('paldo', () => {
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('To use this command you must have git and npm installed and in your PATH');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('errors when a spawn fails.', { timeout: 5000 }, () => {
+            it('errors when a spawn fails.', { timeout: 5000 }, (done, onCleanup) => {
 
                 const spawnOrig = ChildProcess.spawn;
-                const cleanup = () => {
+                onCleanup((next) => {
 
                     ChildProcess.spawn = spawnOrig;
 
-                    return rimraf('new/bad-npm-init');
-                };
+                    return rimraf('new/bad-npm-init').then(next, next);
+                });
 
                 ChildProcess.spawn = (cmd, args, opts) => {
 
@@ -613,7 +600,7 @@ describe('paldo', () => {
                     return spawnOrig(cmd, args, opts);
                 };
 
-                return RunUtil.cli(['new', 'bad-npm-init'], 'new')
+                RunUtil.cli(['new', 'bad-npm-init'], 'new')
                     .then(() => {
 
                         throw new Error('Shouldn\'t end-up here');
@@ -624,8 +611,7 @@ describe('paldo', () => {
                         expect(err).to.not.be.instanceof(DisplayError);
                         expect(err.message).to.contain('Failed with code: 1');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
         });
 
@@ -635,9 +621,10 @@ describe('paldo', () => {
 
                 const get = Wreck.get;
                 const calls = [];
-                const cleanup = () => {
+                const cleanup = (next) => {
 
                     Wreck.get = get;
+                    next();
                 };
 
                 Wreck.get = (url) => {
@@ -658,60 +645,57 @@ describe('paldo', () => {
                 return { calls, cleanup };
             };
 
-            it('errors when fetching the hapi docs 404s.', () => {
+            it('errors when fetching the hapi docs 404s.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(Boom.notFound());
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', 'xxx'])
+                RunUtil.cli(['docs', 'xxx'])
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('Couldn\'t find docs for that version of hapi. Are you sure it\'s a published version?');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('errors when the hapi docs can\'t be fetched (boom error).', () => {
+            it('errors when the hapi docs can\'t be fetched (boom error).', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(Boom.badImplementation());
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', 'xxx'])
+                RunUtil.cli(['docs', 'xxx'])
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('Could not fetch the hapi docs: Internal Server Error');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('errors when the hapi docs can\'t be fetched (non-boom error).', () => {
+            it('errors when the hapi docs can\'t be fetched (non-boom error).', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(new Error('No way can you get those docs'));
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', 'xxx'])
+                RunUtil.cli(['docs', 'xxx'])
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('Could not fetch the hapi docs: No way can you get those docs');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('errors when hapi package is corrupted and version can\'t be determined.', () => {
+            it('errors when hapi package is corrupted and version can\'t be determined.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', 'xxx'], 'corrupted-hapi-version')
+                RunUtil.cli(['docs', 'xxx'], 'corrupted-hapi-version')
                     .then(() => {
 
                         throw new Error('Shouldn\'t end-up here');
@@ -722,14 +706,13 @@ describe('paldo', () => {
                         expect(err).to.not.be.instanceof(DisplayError);
                         expect(err.message).to.contain('Cannot read property \'version\' of null');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('notifies the user on stderr when a haute-couture manifest can\'t be used.', () => {
+            it('notifies the user on stderr when a haute-couture manifest can\'t be used.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
                 const cli = RunUtil.cli(['docs', 'xxx'], 'no-haute-couture');
 
@@ -739,7 +722,7 @@ describe('paldo', () => {
                     stderr += data;
                 });
 
-                return cli
+                cli
                     .then((result) => {
 
                         expect(stderr).to.contain('(Just so you know, we couldn\'t load a haute-couture manifest, so we can\'t search the hapi docs quite as intelligently as usual.)');
@@ -747,16 +730,15 @@ describe('paldo', () => {
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('defaults to fetch the version of hapi docs for the version used in the current project.', () => {
+            it('defaults to fetch the version of hapi docs for the version used in the current project.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', 'xxx'], 'specific-hapi-version')
+                RunUtil.cli(['docs', 'xxx'], 'specific-hapi-version')
                     .then((result) => {
 
                         expect(mockWreck.calls).to.equal([
@@ -767,16 +749,15 @@ describe('paldo', () => {
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('fetches the version of hapi docs for the version specified by [--hapi].', () => {
+            it('fetches the version of hapi docs for the version specified by [--hapi].', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', 'xxx', '--hapi', '4.2.0'], 'specific-hapi-version')
+                RunUtil.cli(['docs', 'xxx', '--hapi', '4.2.0'], 'specific-hapi-version')
                     .then((result) => {
 
                         expect(mockWreck.calls).to.equal([
@@ -787,16 +768,15 @@ describe('paldo', () => {
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('errors when the hapi version specified by [--hapi] isn\'t semver valid.', () => {
+            it('errors when the hapi version specified by [--hapi] isn\'t semver valid.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', 'xxx', '--hapi', '4.2.x'], 'specific-hapi-version')
+                RunUtil.cli(['docs', 'xxx', '--hapi', '4.2.x'], 'specific-hapi-version')
                     .then((result) => {
 
                         expect(mockWreck.calls).to.equal([]);
@@ -804,16 +784,15 @@ describe('paldo', () => {
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('The --hapi option should specify a valid semver version. "4.2.x" is invalid.');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('errors when there is no docs query.', () => {
+            it('errors when there is no docs query.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs'])
+                RunUtil.cli(['docs'])
                     .then((result) => {
 
                         expect(mockWreck.calls).to.equal([]);
@@ -821,18 +800,17 @@ describe('paldo', () => {
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('You must specify a search query to find a section in the hapi docs.');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('matches section case-insensitively on haute-couture item, then method, then query.', () => {
+            it('matches section case-insensitively on haute-couture item, then method, then query.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet();
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
                 let stderr = '';
 
-                return Promise.resolve()
+                Promise.resolve()
                     .then(() => {
 
                         const cli = RunUtil.cli(['docs', 'plugin'], 'single-as-file');
@@ -883,64 +861,60 @@ describe('paldo', () => {
                         expect(StripAnsi(result.output)).to.contain('# server.register('); // Direct (non-plural) haute-couture match
                         expect(result.errorOutput).to.equal('');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('matches on query only when it has at least three characters.', () => {
+            it('matches on query only when it has at least three characters.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet();
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', 'rv']) // Would definitely find "server.anything()"
+                RunUtil.cli(['docs', 'rv']) // Would definitely find "server.anything()"
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "rv".');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('matches on anchorized query.', () => {
+            it('matches on anchorized query.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet();
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', '#serverstatename-options'])
+                RunUtil.cli(['docs', '#serverstatename-options'])
                     .then((result) => {
 
                         expect(result.err).to.not.exist();
                         expect(StripAnsi(result.output)).to.contain('# server.state(name, [options])');
                         expect(result.errorOutput).to.equal('');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('matches on pluralized haute-couture item.', () => {
+            it('matches on pluralized haute-couture item.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet();
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', 'cache'], 'single-as-dir')
+                RunUtil.cli(['docs', 'cache'], 'single-as-dir')
                     .then((result) => {
 
                         expect(result.err).to.not.exist();
                         expect(StripAnsi(result.output)).to.contain('# server.cache.provision(options, [callback])');
                         expect(result.errorOutput).to.equal('');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('matches on a section\'s single configuration item.', () => {
+            it('matches on a section\'s single configuration item.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet();
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', '#route-options', 'json'])
+                RunUtil.cli(['docs', '#route-options', 'json'])
                     .then((result) => {
 
                         expect(result.err).to.not.exist();
@@ -957,24 +931,22 @@ describe('paldo', () => {
 
                         expect(result.errorOutput).to.equal('');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
 
-            it('errors when can\'t match single configuration item.', () => {
+            it('errors when can\'t match single configuration item.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet();
-                const cleanup = mockWreck.cleanup;
+                onCleanup(mockWreck.cleanup);
 
-                return RunUtil.cli(['docs', '#route-options', 'nope'])
+                RunUtil.cli(['docs', '#route-options', 'nope'])
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "#route-options nope".');
                     })
-                    .then(cleanup)
-                    .catch(rethrow(cleanup));
+                    .then(done, done);
             });
         });
     });
