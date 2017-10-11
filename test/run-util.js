@@ -69,6 +69,8 @@ exports.cli = (argv, cwd, colors) => {
         .then(() => ({ err: null, output, errorOutput: '' }))
         .catch((err) => {
 
+            output = output.trim(); // Ignore leading and trailing whitespace for testing purposes
+
             if (!(err instanceof DisplayError)) {
                 err.output = output;
                 throw err;
