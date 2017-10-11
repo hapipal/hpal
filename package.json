@@ -6,6 +6,9 @@
   "directories": {
     "test": "test"
   },
+  "bin": {
+    "paldo": "./bin/paldo"
+  },
   "scripts": {
     "test": "lab -a code -t 100 -L test/*.js",
     "coveralls": "lab -r lcov test/*.js | coveralls"
