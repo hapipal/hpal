@@ -9,7 +9,7 @@ Promise.resolve({
     out: process.stdout,
     err: process.stderr,
     cwd: process.cwd(),
-    colors: require('supports-color')
+    colors: !!require('supports-color')
 })
     .then(Paldo.start)
     .then(() => process.exit(0))
