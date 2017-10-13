@@ -680,6 +680,8 @@ describe('paldo', () => {
                 return { calls, cleanup };
             };
 
+            const normalizeVersion = (str) => str.replace(/16\.[\d]+\.[\d]+/g, '16.x.x');
+
             it('errors when fetching the hapi docs 404s.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(Boom.notFound());
@@ -689,7 +691,7 @@ describe('paldo', () => {
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('');
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
                         expect(result.errorOutput).to.contain('Couldn\'t find docs for that version of hapi. Are you sure it\'s a published version?');
                     })
                     .then(done, done);
@@ -704,7 +706,7 @@ describe('paldo', () => {
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('');
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
                         expect(result.errorOutput).to.contain('Could not fetch the hapi docs: Internal Server Error');
                     })
                     .then(done, done);
@@ -719,7 +721,7 @@ describe('paldo', () => {
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('');
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
                         expect(result.errorOutput).to.contain('Could not fetch the hapi docs: No way can you get those docs');
                     })
                     .then(done, done);
@@ -744,30 +746,6 @@ describe('paldo', () => {
                     .then(done, done);
             });
 
-            it('notifies the user on stderr when a haute-couture manifest can\'t be used.', (done, onCleanup) => {
-
-                const mockWreck = mockWreckGet(null);
-                onCleanup(mockWreck.cleanup);
-
-                const cli = RunUtil.cli(['docs', 'xxx'], 'no-haute-couture');
-
-                let stderr = '';
-                cli.args.err.on('data', (data) => {
-
-                    stderr += data;
-                });
-
-                cli
-                    .then((result) => {
-
-                        expect(stderr).to.contain('(Just so you know, we couldn\'t load a haute-couture manifest, so we can\'t search the hapi docs quite as intelligently as usual.)');
-                        expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('');
-                        expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
-                    })
-                    .then(done, done);
-            });
-
             it('defaults to fetch the version of hapi docs for the version used in the current project.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
@@ -781,7 +759,7 @@ describe('paldo', () => {
                         ]);
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('');
+                        expect(result.output).to.equal('Searching docs from hapi v6.6.6...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
                     .then(done, done);
@@ -800,7 +778,7 @@ describe('paldo', () => {
                         ]);
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('');
+                        expect(result.output).to.equal('Searching docs from hapi v4.2.0...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
                     .then(done, done);
@@ -908,7 +886,7 @@ describe('paldo', () => {
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('');
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "rv".');
                     })
                     .then(done, done);
@@ -978,7 +956,7 @@ describe('paldo', () => {
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('');
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "#route-options nope".');
                     })
                     .then(done, done);
