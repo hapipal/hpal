@@ -177,6 +177,18 @@ describe('paldo', () => {
                     });
             });
 
+            it('errors when omitting an item to create.', () => {
+
+                return RunUtil.cli(['make'], 'item-omitted')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Ah, but what to make?  You must specify a haute-couture item.  Try one of: ');
+                        expect(result.errorOutput).to.contain('decorations, ');
+                    });
+            });
+
             it('errors when trying to create a non-existent item.', () => {
 
                 return RunUtil.cli(['make', 'nonsense'], 'item-doesnt-exist')
