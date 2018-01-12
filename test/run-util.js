@@ -43,6 +43,7 @@ exports.bin = (argv, cwd) => {
 exports.cli = (argv, cwd, colors) => {
 
     argv = ['x', 'x'].concat(argv); // [node, script, ...args]
+    cwd = cwd ? (Path.isAbsolute(cwd) ? cwd : `${__dirname}/closet/${cwd}`) : __dirname;
 
     const stdin = new Stream.PassThrough();
     const stdout = new Stream.PassThrough();
@@ -57,10 +58,10 @@ exports.cli = (argv, cwd, colors) => {
 
     const args = {
         argv,
+        cwd,
         in: stdin,
         out: stdout,
         err: stderr,
-        cwd: cwd ? (Path.isAbsolute(cwd) ? cwd : `${__dirname}/closet/${cwd}`) : __dirname,
         colors: !!colors
     };
 
