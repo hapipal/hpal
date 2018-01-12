@@ -13,7 +13,7 @@
         - [`server.mime`](#servermime)
         - [`server.plugins`](#serverplugins)
         - [`server.realm`](#serverrealm)
-        - [`server.registrations`](#serverregistrations)
+        - [`server.registrations`](#-serverregistrations)
         - [`server.root`](#serverroot)
         - [`server.settings`](#serversettings)
         - [`server.version`](#serverversion)
@@ -134,7 +134,7 @@ Creates a new `Server` object where:
           name. When an array of objects is provided, multiple cache connections are established
           and each array item (except one) must include a `name`.
 
-    - <a name="server.config.connections"></a>`connections` - sets the default connections
+    - <a name="server.config.connections" />`connections` - sets the default connections
       configuration which can be overridden by each connection where:
 
         - `app` - application-specific connection configuration which can be accessed via
@@ -486,7 +486,7 @@ exports.register = function (server, options, next) {
 };
 ```
 
-#### `server.registrations`
+#### <a name="srv.reg" /> `server.registrations`
 
 When the server contains exactly one connection, `registrations` is an object where each key is a
 registered plugin name and value contains:

@@ -1074,6 +1074,31 @@ describe('paldo', () => {
                     .then(done, done);
             });
 
+            it('matches against heading anchor tags and does not display anchors in output.', (done, onCleanup) => {
+
+                const mockWreck = mockWreckGet();
+                onCleanup(mockWreck.cleanup);
+
+                RunUtil.cli(['docs', '#srv.reg'])
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+
+                        const output = StripAnsi(result.output);
+
+                        expect(output).to.contain('#### server.registrations');
+                        expect(output).to.contain('registrations is an object');
+                        expect(output).to.contain('    * version -');
+                        expect(output).to.contain('    * name -');
+                        expect(output).to.contain('    * options -');
+                        expect(output).to.contain('    * attributes -');
+                        expect(output).to.contain('array member provides');
+
+                        expect(result.errorOutput).to.equal('');
+                    })
+                    .then(done, done);
+            });
+
             it('errors when can\'t match single configuration item.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet();
