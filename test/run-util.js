@@ -60,7 +60,7 @@ exports.cli = (argv, cwd, colors) => {
         in: stdin,
         out: stdout,
         err: stderr,
-        cwd: cwd ? `${__dirname}/closet/${cwd}` : __dirname,
+        cwd: cwd ? (Path.isAbsolute(cwd) ? cwd : `${__dirname}/closet/${cwd}`) : __dirname,
         colors: !!colors
     };
 

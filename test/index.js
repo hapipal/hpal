@@ -139,6 +139,17 @@ describe('paldo', () => {
                     });
             });
 
+            it('errors when there\'s no package.json file found.', () => {
+
+                return RunUtil.cli(['make', 'route'], '/')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('No nearby package.json found– you don\'t seem to be in a project.');
+                    });
+            });
+
             it('errors when finding a .hc.js file is ambiguous.', () => {
 
                 return RunUtil.cli(['make', 'route'], 'ambiguous-hc-file')
@@ -444,6 +455,34 @@ describe('paldo', () => {
                 return RunUtil.cli(['make', 'x'], 'with-example-and-signature').then(check);
             });
 
+            it('writes file from example that has some requires.', () => {
+
+                const check = (result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/x.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    return read('with-example-and-requires/lib/x.js')
+                        .then((contents) => {
+
+                            expect(contents).to.equal([
+                                '\'use strict\';',
+                                '',
+                                'const FiveSpot = require(\'five-spot\');',
+                                'const TenSpot = require(\'ten-spot\');',
+                                '',
+                                'module.exports = class extends FiveSpot.mixin(TenSpot) {};',
+                                ''
+                            ].join(Os.EOL));
+
+                            return rimraf('with-example-and-requires/lib/x.js');
+                        });
+                };
+
+                return RunUtil.cli(['make', 'x'], 'with-example-and-requires').then(check);
+            });
+
             it('wraps listed examples in an array.', () => {
 
                 const checkUnnamed = (result) => {
@@ -709,6 +748,25 @@ describe('paldo', () => {
                     .then(done, done);
             });
 
+            it('errors when fetching the hapi docs fails due to being offline.', (done, onCleanup) => {
+
+                const mockWreck = mockWreckGet(Object.assign(new Error(), {
+                    syscall: 'getaddrinfo',
+                    code: 'ENOTFOUND'
+                }));
+
+                onCleanup(mockWreck.cleanup);
+
+                RunUtil.cli(['docs', 'xxx'])
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
+                        expect(result.errorOutput).to.contain('Could not fetch the hapi docs likely because you\'re offline.');
+                    })
+                    .then(done, done);
+            });
+
             it('errors when the hapi docs can\'t be fetched (boom error).', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(Boom.badImplementation());
@@ -758,6 +816,25 @@ describe('paldo', () => {
                     .then(done, done);
             });
 
+            it('errors when can\'t find a manifest for an unknown reason.', (done, onCleanup) => {
+
+                const mockWreck = mockWreckGet(null);
+                onCleanup(mockWreck.cleanup);
+
+                RunUtil.cli(['docs', 'xxx'], 'haute-couture-broken')
+                    .then(() => {
+
+                        throw new Error('Shouldn\'t end-up here');
+                    })
+                    .catch((err) => {
+
+                        expect(err).to.be.instanceof(SyntaxError);
+                        expect(err).to.not.be.instanceof(DisplayError);
+                        expect(err.output).to.equal('Searching docs from hapi\'s master branch...');
+                    })
+                    .then(done, done);
+            });
+
             it('defaults to fetch the version of hapi docs for the version used in the current project.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
@@ -772,6 +849,44 @@ describe('paldo', () => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('Searching docs from hapi v6.6.6...');
+                        expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+                    })
+                    .then(done, done);
+            });
+
+            it('fetches the version of hapi docs on the master branch when not in a project.', (done, onCleanup) => {
+
+                const mockWreck = mockWreckGet(null);
+                onCleanup(mockWreck.cleanup);
+
+                RunUtil.cli(['docs', 'xxx'], '/')
+                    .then((result) => {
+
+                        expect(mockWreck.calls).to.equal([
+                            'https://raw.githubusercontent.com/hapijs/hapi/master/API.md'
+                        ]);
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('Searching docs from hapi\'s master branch...');
+                        expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+                    })
+                    .then(done, done);
+            });
+
+            it('fetches the version of hapi docs on the master branch when in a project that does not use hapi.', (done, onCleanup) => {
+
+                const mockWreck = mockWreckGet(null);
+                onCleanup(mockWreck.cleanup);
+
+                RunUtil.cli(['docs', 'xxx'], 'project-without-hapi')
+                    .then((result) => {
+
+                        expect(mockWreck.calls).to.equal([
+                            'https://raw.githubusercontent.com/hapijs/hapi/master/API.md'
+                        ]);
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('Searching docs from hapi\'s master branch...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
                     .then(done, done);

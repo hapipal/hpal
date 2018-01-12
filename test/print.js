@@ -459,6 +459,35 @@ describe('Print.example()', () => {
     });
 });
 
+describe('Print.requires()', () => {
+
+    it('prints an example\'s requires.', (done) => {
+
+        const ex = { $requires: ['five-spot', 'ten-spot'] };
+
+        expect(Print.requires(ex)).to.equal([
+            'const FiveSpot = require(\'five-spot\');',
+            'const TenSpot = require(\'ten-spot\');'
+        ].join(Os.EOL));
+
+        done();
+    });
+
+    it('prints an example without requires.', (done) => {
+
+        expect(Print.requires({})).to.equal('');
+
+        done();
+    });
+
+    it('prints nothing when there is no example.', (done) => {
+
+        expect(Print.requires(undefined)).to.equal('');
+
+        done();
+    });
+});
+
 describe('Print.markdownSection()', () => {
 
     const p = Print.markdownSection;
