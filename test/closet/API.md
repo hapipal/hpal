@@ -134,7 +134,7 @@ Creates a new `Server` object where:
           name. When an array of objects is provided, multiple cache connections are established
           and each array item (except one) must include a `name`.
 
-    - <a name="server.config.connections" />`connections` - sets the default connections
+    - <a name="server.config.connections"></a>`connections` - sets the default connections
       configuration which can be overridden by each connection where:
 
         - `app` - application-specific connection configuration which can be accessed via
