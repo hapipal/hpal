@@ -1,22 +1,22 @@
-# paldo
+# hpal
 
 hapi pal CLI
 
-[![Build Status](https://travis-ci.org/devinivy/paldo.svg?branch=master)](https://travis-ci.org/devinivy/paldo) [![Coverage Status](https://coveralls.io/repos/devinivy/paldo/badge.svg?branch=master&service=github)](https://coveralls.io/github/devinivy/paldo?branch=master)
+[![Build Status](https://travis-ci.org/devinivy/hpal.svg?branch=master)](https://travis-ci.org/devinivy/hpal) [![Coverage Status](https://coveralls.io/repos/devinivy/hpal/badge.svg?branch=master&service=github)](https://coveralls.io/github/devinivy/hpal?branch=master)
 
 ```
-Usage: paldo <command> <options>
+Usage: hpal <command> <options>
 
 Commands:
 
-  paldo new <new-project-directory>
-    e.g. paldo new ~/node-projects/new-pal-project
+  hpal new <new-project-directory>
+    e.g. hpal new ~/node-projects/new-pal-project
 
-  paldo make [--asDir|--asFile] <haute-couture-item> [<item-name>]
-    e.g. paldo make route create-user
+  hpal make [--asDir|--asFile] <haute-couture-item> [<item-name>]
+    e.g. hpal make route create-user
 
-  paldo docs [--hapi x.y.z] <docs-section> [<config-item>]
-    e.g. paldo docs --hapi 16.0.0 reply.continue
+  hpal docs [--hapi x.y.z] <docs-section> [<config-item>]
+    e.g. hpal docs --hapi 17.2.0 reply.continue
 
 
 Options:

@@ -24,7 +24,7 @@ const expect = Lab.expect;
 
 const internals = {};
 
-describe('paldo', () => {
+describe('hpal', () => {
 
     describe('CLI', () => {
 
@@ -37,7 +37,7 @@ describe('paldo', () => {
                 .then((result) => {
 
                     expect(result.err).to.not.exist();
-                    expect(result.output).to.contain('Usage: paldo <command> <options>');
+                    expect(result.output).to.contain('Usage: hpal <command> <options>');
                     expect(result.errorOutput).to.equal('');
 
                     return RunUtil.cli(['--help']);
@@ -45,7 +45,7 @@ describe('paldo', () => {
                 .then((result) => {
 
                     expect(result.err).to.not.exist();
-                    expect(result.output).to.contain('Usage: paldo <command> <options>');
+                    expect(result.output).to.contain('Usage: hpal <command> <options>');
                     expect(result.errorOutput).to.equal('');
                 });
         });
@@ -56,7 +56,7 @@ describe('paldo', () => {
                 .then((result) => {
 
                     expect(result.err).to.not.exist();
-                    expect(result.output).to.contain('Usage: paldo <command> <options>');
+                    expect(result.output).to.contain('Usage: hpal <command> <options>');
                     expect(result.output).to.not.contain('Unknown option');
                     expect(result.output).to.not.contain('Unknown command');
                     expect(result.errorOutput).to.equal('');
@@ -89,7 +89,7 @@ describe('paldo', () => {
 
                     expect(result.err).to.be.instanceof(DisplayError);
                     expect(result.output).to.equal('');
-                    expect(result.errorOutput).to.contain('Usage: paldo <command> <options>');
+                    expect(result.errorOutput).to.contain('Usage: hpal <command> <options>');
                     expect(result.errorOutput).to.contain('Unknown option: notaflag');
                 });
         });
@@ -101,7 +101,7 @@ describe('paldo', () => {
 
                     expect(result.err).to.be.instanceof(DisplayError);
                     expect(result.output).to.equal('');
-                    expect(result.errorOutput).to.contain('Usage: paldo <command> <options>');
+                    expect(result.errorOutput).to.contain('Usage: hpal <command> <options>');
                     expect(result.errorOutput).to.contain('Unknown command: clank');
                 });
         });
@@ -1124,7 +1124,7 @@ describe('paldo', () => {
                 .then((result) => {
 
                     expect(result.code).to.equal(0);
-                    expect(result.output).to.contain('Usage: paldo <command> <options>');
+                    expect(result.output).to.contain('Usage: hpal <command> <options>');
                     expect(result.errorOutput).to.equal('');
                 });
         });

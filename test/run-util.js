@@ -3,14 +3,14 @@
 const ChildProcess = require('child_process');
 const Path = require('path');
 const Stream = require('stream');
-const Paldo = require('..');
+const Hpal = require('..');
 const DisplayError = require('../lib/display-error');
 
 exports.bin = (argv, cwd) => {
 
     return new Promise((resolve, reject) => {
 
-        const path = Path.join(__dirname, '..', 'bin', 'paldo');
+        const path = Path.join(__dirname, '..', 'bin', 'hpal');
         const cli = ChildProcess.spawn('node', [].concat(path, argv), { cwd: cwd || __dirname });
 
         let output = '';
@@ -66,7 +66,7 @@ exports.cli = (argv, cwd, colors) => {
     };
 
     const cli = Promise.resolve()
-        .then(() => Paldo.start(args))
+        .then(() => Hpal.start(args))
         .then(() => ({ err: null, output, errorOutput: '' }))
         .catch((err) => {
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const Paldo = require('..');
+const Hpal = require('..');
 const DisplayError = require('../lib/display-error');
 
 Promise.resolve({
@@ -9,9 +9,9 @@ Promise.resolve({
     out: process.stdout,
     err: process.stderr,
     cwd: process.cwd(),
-    colors: !!require('supports-color')
+    colors: !!require('supports-color').stdout
 })
-    .then(Paldo.start)
+    .then(Hpal.start)
     .then(() => process.exit(0))
     .catch((err) => {
 
