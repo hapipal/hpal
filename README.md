@@ -16,7 +16,7 @@ Commands:
     e.g. hpal make route create-user
 
   hpal docs [--hapi x.y.z] <docs-section> [<config-item>]
-    e.g. hpal docs --hapi 17.2.0 reply.continue
+    e.g. hpal docs --hapi 17.2.0 h.continue
 
 
 Options:
