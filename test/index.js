@@ -171,7 +171,7 @@ describe('hpal', () => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
-                        expect(result.errorOutput).to.contain('Couldn\'t find the haute-couture package in this project.  It may just need to be installed.');
+                        expect(result.errorOutput).to.contain('Couldn\'t find the haute-couture package in this project. It may just need to be installed.');
                     });
             });
 
@@ -195,7 +195,7 @@ describe('hpal', () => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
-                        expect(result.errorOutput).to.contain('Ah, but what to make?  You must specify a haute-couture item.  Try one of: ');
+                        expect(result.errorOutput).to.contain('Ah, but what to make? You must specify a haute-couture item. Try one of: ');
                         expect(result.errorOutput).to.contain('decorations, ');
                     });
             });
@@ -207,7 +207,7 @@ describe('hpal', () => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
-                        expect(result.errorOutput).to.contain('We don\'t know anything about "nonsense".  Try one of: ');
+                        expect(result.errorOutput).to.contain('We don\'t know anything about "nonsense". Try one of: ');
                         expect(result.errorOutput).to.contain('decorations, ');
                     });
             });
@@ -542,6 +542,23 @@ describe('hpal', () => {
 
             const exists = (file) => Pify(Fs.stat)(`${__dirname}/closet/${file}`);
             const exec = (cmd, cwd) => Pify(ChildProcess.exec, { multiArgs: true })(cmd, { cwd: `${__dirname}/closet/${cwd}` });
+            const answerNpmInit = (cli, name, bail) => {
+
+                cli.args.out.on('data', (data) => {
+
+                    data = data.toString();
+
+                    if (~data.indexOf('name: ')) {
+                        process.nextTick(() => cli.args.in.write(`${name}\n`));
+                    }
+                    else if ((/^[\w ]+: /).test(data)) {
+                        process.nextTick(() => cli.args.in.write('\n')); // "Return" through the npm prompts
+                    }
+                    else if (~data.indexOf('Is this ok?')) {
+                        process.nextTick(() => cli.args.in.write(bail ? 'no\n' : 'yes\n'));
+                    }
+                });
+            };
 
             it('creates a new pal project.', { timeout: 5000 }, (done, onCleanup) => {
 
@@ -549,21 +566,7 @@ describe('hpal', () => {
 
                 const cli = RunUtil.cli(['new', 'my-project'], 'new');
 
-                let choseName = false;
-
-                cli.args.out.on('data', (data) => {
-
-                    data = data.toString();
-
-                    if (~data.indexOf('name:')) {
-                        choseName = true;
-                        process.nextTick(() => cli.args.in.write('chosen-name'));
-                    }
-
-                    if (choseName) {
-                        process.nextTick(() => cli.args.in.write('\n')); // "Return" through the npm prompts
-                    }
-                });
+                answerNpmInit(cli, 'chosen-name');
 
                 cli
                     .then((result) => {
@@ -607,6 +610,170 @@ describe('hpal', () => {
                         expect(tags).to.contain('fancy-templated-site');
                         expect(modifiedFiles).to.equal('');
                         expect(logError).to.contain('your current branch \'master\' does not have any commits');
+                    })
+                    .then(done, done);
+            });
+
+            it('creates a new pal project when bailing on `npm init`.', { timeout: 5000 }, (done, onCleanup) => {
+
+                onCleanup((next) => rimraf('new/bail-on-npm-init').then(next, next));
+
+                const cli = RunUtil.cli(['new', 'bail-on-npm-init'], 'new');
+
+                answerNpmInit(cli, 'chosen-name', true); // Bail
+
+                cli
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.output).to.contain('New pal project created in bail-on-npm-init');
+                        expect(result.errorOutput).to.contain('Bailed on `npm init`, but continuing to setup your project with an incomplete package.json file.');
+
+                        return Promise.all([
+                            read('new/bail-on-npm-init/package.json'),
+                            exists('new/bail-on-npm-init/lib/index.js'),
+                            exists('new/bail-on-npm-init/test/index.js'),
+                            exec('git remote', 'new/bail-on-npm-init'),
+                            exec('git tag', 'new/bail-on-npm-init'),
+                            exec('git ls-files -m', 'new/bail-on-npm-init'),
+                            exec('git log', 'new/bail-on-npm-init').catch((results) => results[2])
+                        ]);
+                    })
+                    .then((results) => {
+
+                        const pkg = JSON.parse(results[0]);
+                        const lib = results[1];
+                        const test = results[2];
+                        const remotes = results[3][0].split('\n');
+                        const tags = results[4][0].split('\n');
+                        const modifiedFiles = results[5][0].trim();
+                        const logError = results[6];
+
+                        expect(pkg.name).to.not.exist();
+                        expect(pkg.version).to.not.exist();
+                        expect(pkg.dependencies).to.exist();
+                        expect(pkg.devDependencies).to.exist();
+                        expect(lib).to.exist();
+                        expect(test).to.exist();
+                        expect(remotes).to.contain('pal');
+                        expect(tags).to.contain('swagger');
+                        expect(tags).to.contain('custom-swagger');
+                        expect(tags).to.contain('deployment');
+                        expect(tags).to.contain('objection');
+                        expect(tags).to.contain('templated-site');
+                        expect(tags).to.contain('fancy-templated-site');
+                        expect(modifiedFiles).to.equal('');
+                        expect(logError).to.contain('your current branch \'master\' does not have any commits');
+                    })
+                    .then(done, done);
+            });
+
+            it.only('fails in a friendly way when trying to create a project in a non-empty directory.', (done, onCleanup) => {
+
+                const cli = RunUtil.cli(['new', 'project-already-exists'], 'new');
+
+                cli
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('There\'s already a directory there with some stuff in it– try choosing a new place to create your project.');
+                    })
+                    .then(done, done);
+            });
+
+            it('fails in a friendly way when can\'t git clone due to connection.', (done, onCleanup) => {
+
+                const execOrig = ChildProcess.exec;
+                ChildProcess.exec = (cmd, opts, cb) => {
+
+                    if (cmd.indexOf('git clone') === 0) {
+                        return process.nextTick(() => cb(new Error('fatal: unable to access \'https://github.com/devinivy/boilerplate-api.git/\': Could not resolve host: github.com')));
+                    }
+
+                    return execOrig(cmd, opts, cb);
+                };
+
+                onCleanup((next) => {
+
+                    ChildProcess.exec = execOrig;
+                    rimraf('new/bad-connection').then(next, next);
+                });
+
+                const cli = RunUtil.cli(['new', 'bad-connection'], 'new');
+
+                cli
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Couldn\'t create a new project. It seems you may be offline– ensure you have a connection then try again.');
+                    })
+                    .then(done, done);
+            });
+
+            it('fails hard when git clone fails for an unknown reason.', { timeout: 5000 }, (done, onCleanup) => {
+
+                const execOrig = ChildProcess.exec;
+                ChildProcess.exec = (cmd, opts, cb) => {
+
+                    if (cmd.indexOf('git clone') === 0) {
+                        return process.nextTick(() => cb(new Error('Oops!')));
+                    }
+
+                    return execOrig(cmd, opts, cb);
+                };
+
+                onCleanup((next) => {
+
+                    ChildProcess.exec = execOrig;
+                    rimraf('new/unknown-error').then(next, next);
+                });
+
+                const cli = RunUtil.cli(['new', 'unknown-error'], 'new');
+
+                cli
+                    .then(() => {
+
+                        throw new Error('Shouldn\'t end-up here');
+                    })
+                    .catch((err) => {
+
+                        expect(err).to.be.instanceof(Error);
+                        expect(err).to.not.be.instanceof(DisplayError);
+                        expect(err.message).to.contain('Oops!');
+                    })
+                    .then(done, done);
+            });
+
+            it('continues and warns if fetching flavors fails.', { timeout: 5000 }, (done, onCleanup) => {
+
+                const execOrig = ChildProcess.exec;
+                ChildProcess.exec = (cmd, opts, cb) => {
+
+                    if (cmd === 'git fetch pal --tags') {
+                        return process.nextTick(() => cb(new Error('Oops!')));
+                    }
+
+                    return execOrig(cmd, opts, cb);
+                };
+
+                onCleanup((next) => {
+
+                    ChildProcess.exec = execOrig;
+                    rimraf('new/flavors-fail').then(next, next);
+                });
+
+                const cli = RunUtil.cli(['new', 'flavors-fail'], 'new');
+
+                answerNpmInit(cli, 'flavors-fail');
+
+                cli
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.output).to.contain('New pal project created in flavors-fail');
+                        expect(result.errorOutput).to.contain('Just so you know, we weren\'t able to fetch pal flavors for you. Try running git fetch pal --tags yourself at a later time.');
                     })
                     .then(done, done);
             });
@@ -663,39 +830,6 @@ describe('hpal', () => {
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('To use this command you must have git and npm installed and in your PATH');
-                    })
-                    .then(done, done);
-            });
-
-            it('errors when npm init fails.', { timeout: 5000 }, (done, onCleanup) => {
-
-                const spawnOrig = ChildProcess.spawn;
-                onCleanup((next) => {
-
-                    ChildProcess.spawn = spawnOrig;
-
-                    return rimraf('new/bad-npm-init').then(next, next);
-                });
-
-                ChildProcess.spawn = (cmd, args, opts) => {
-
-                    if (cmd === 'npm') {
-                        return spawnOrig('npm', ['--bad-command'], opts);
-                    }
-
-                    return spawnOrig(cmd, args, opts);
-                };
-
-                RunUtil.cli(['new', 'bad-npm-init'], 'new')
-                    .then(() => {
-
-                        throw new Error('Shouldn\'t end-up here');
-                    })
-                    .catch((err) => {
-
-                        expect(err).to.be.instanceof(Error);
-                        expect(err).to.not.be.instanceof(DisplayError);
-                        expect(err.message).to.contain('Failed with code: 1');
                     })
                     .then(done, done);
             });
@@ -762,7 +896,7 @@ describe('hpal', () => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
-                        expect(result.errorOutput).to.contain('Could not fetch the hapi docs likely because you\'re offline.');
+                        expect(result.errorOutput).to.contain('Could not fetch the hapi docs. It seems you may be offline– ensure you have a connection then try again.');
                     })
                     .then(done, done);
             });

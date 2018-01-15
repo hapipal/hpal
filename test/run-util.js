@@ -56,6 +56,13 @@ exports.cli = (argv, cwd, colors) => {
         output += data;
     });
 
+    let errorOutput = '';
+
+    stderr.on('data', (data) => {
+
+        errorOutput += data;
+    });
+
     const args = {
         argv,
         cwd,
@@ -67,7 +74,7 @@ exports.cli = (argv, cwd, colors) => {
 
     const cli = Promise.resolve()
         .then(() => Hpal.start(args))
-        .then(() => ({ err: null, output, errorOutput: '' }))
+        .then(() => ({ err: null, output, errorOutput }))
         .catch((err) => {
 
             output = output.trim(); // Ignore leading and trailing whitespace for testing purposes
