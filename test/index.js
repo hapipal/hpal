@@ -668,7 +668,7 @@ describe('hpal', () => {
                     .then(done, done);
             });
 
-            it.only('fails in a friendly way when trying to create a project in a non-empty directory.', (done, onCleanup) => {
+            it('fails in a friendly way when trying to create a project in a non-empty directory.', (done, onCleanup) => {
 
                 const cli = RunUtil.cli(['new', 'project-already-exists'], 'new');
 
