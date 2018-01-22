@@ -7,7 +7,7 @@ hapi pal CLI
 `hpal` was designed to help you,
   - :sparkles: create new hapi projects from the [pal boilerplate](https://github.com/devinivy/boilerplate-api)
   - :bouquet: generate files for routes, extensions, [models](https://github.com/BigRoomStudios/schwifty), [services](https://github.com/devinivy/schmervice), etc. via [`haute-couture`](https://github.com/devinivy/haute-couture)
-  - :books: search the [hapi docs](https://github.com/hapijs/hapi/blob/master/API.md) from the command line
+  - :books: search the [hapi docs](https://github.com/hapijs/hapi/blob/master/API.md) from the command line– plus many others such as [joi](https://github.com/hapijs/joi/blob/master/API.md) and [toys](https://github.com/devinivy/toys/blob/master/API.md)
 
 
 ## Installation
@@ -15,7 +15,7 @@ hapi pal CLI
 npm install -g hpal
 ```
 
-You may also install hpal locally within a project as a dev dependency and/or invoke it using [npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b) (which you probably already have installed).
+You may also install hpal locally within a project as a dev dependency and/or invoke it using [npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b) (which you probably already have installed, as it comes with npm v5.2+).
 
 If you want to try the hpal CLI right now, just copy and paste this right into your terminal!
 ```
@@ -42,9 +42,9 @@ Options:
 
   -h, --help       show usage options
   -v, --version    show version information
-  -d, --asDir      [make] creates new haute-couture item in a directory index file.
-  -f, --asFile     [make] creates new haute-couture item in a file.
-  -V, --ver        [docs] specifies the version/ref of the API docs to search for the given package.
+  -d, --asDir      [make] creates new haute-couture item in a directory index file
+  -f, --asFile     [make] creates new haute-couture item in a file
+  -V, --ver        [docs] specifies the version/ref of the API docs to search for the given package
 ```
 
 ### Commands
