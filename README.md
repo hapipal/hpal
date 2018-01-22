@@ -34,17 +34,17 @@ Commands:
   hpal make [--asDir|--asFile] <haute-couture-item> [<item-name>]
     e.g. hpal make route create-user
 
-  hpal docs [--hapi x.y.z] <docs-section> [<config-item>]
-    e.g. hpal docs --hapi 17.2.0 h.continue
+  hpal docs[:<package-name>] [--ver x.y.z|ref] <docs-section> [<config-item>]
+    e.g. hpal docs --ver 17.2.0 h.continue
 
 
-Options:
+Options:                    
 
-  -h, --help       display usage options
-  -v, --version    version information
+  -h, --help       show usage options
+  -v, --version    show version information
   -d, --asDir      [make] creates new haute-couture item in a directory index file.
   -f, --asFile     [make] creates new haute-couture item in a file.
-  --hapi           [docs] specifies the version of hapi used when searching the API docs.
+  -V, --ver        [docs] specifies the version/ref of the API docs to search for the given package.
 ```
 
 ### Commands
@@ -70,11 +70,13 @@ The `--asDir` and `--asFile` flags can be used to determine where the file is wr
 
 #### `hpal docs`
 > ```
-> hpal docs [--hapi x.y.z] <docs-section> [<config-item>]
->   e.g. hpal docs --hapi 17.2.0 h.continue
+> hpal docs[:<package-name>] [--ver x.y.z|ref] <docs-section> [<config-item>]
+>   e.g. hpal docs --ver 17.2.0 h.continue
 > ```
 
 Searches the [hapi API reference](https://github.com/hapijs/hapi/blob/master/API.md) for the relevant section or configuration item then prints it formatted to the console.
+
+:dizzy: This command can also search the API reference for any package within the pal and hapijs ecosystems by specifying `<package-name>`, e.g. [`hpal docs:toys noop`](https://github.com/devinivy/toys/blob/master/API.md#toysnoop) or [`hpal docs:joi any.strip`](https://github.com/hapijs/joi/blob/master/API.md#anystrip).
 
 `<docs-section>` can be,
  - the name of any haute-couture item (e.g. `route`, `plugins`, `auth/default`) when in a haute-couture project
@@ -90,4 +92,4 @@ When `<config-item>` is also specified, the first list item within the matched `
 
 All searches are case-insensitive.
 
-When `--hapi` is specified as a valid semver version, that version of the hapi docs will be searched.  Otherwise, when inside a hapi project the docs for the currently installed version of hapi will be searched.  When not in a project and `--hapi` is not specified, the master branch of the docs will be searched.
+When `--ver` is specified as a semver version or a git ref (branch, tag, or commit), then that version of the docs will be searched.  Otherwise, when inside a project the docs for the currently installed version of the given package will be searched.  When not in a project and `--ver` is not specified, the master branch of the package's docs will be searched.

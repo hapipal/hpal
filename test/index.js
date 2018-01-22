@@ -867,7 +867,7 @@ describe('hpal', () => {
 
             const normalizeVersion = (str) => str.replace(/16\.[\d]+\.[\d]+/g, '16.x.x');
 
-            it('errors when fetching the hapi docs 404s.', (done, onCleanup) => {
+            it('errors when fetching docs 404s.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(Boom.notFound());
                 onCleanup(mockWreck.cleanup);
@@ -876,13 +876,13 @@ describe('hpal', () => {
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
-                        expect(result.errorOutput).to.contain('Couldn\'t find docs for that version of hapi. Are you sure it\'s a published version?');
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v16.x.x...');
+                        expect(normalizeVersion(result.errorOutput)).to.contain('Couldn\'t find docs for that version of hapi. Are you sure hapijs/hapi @ v16.x.x exists?');
                     })
                     .then(done, done);
             });
 
-            it('errors when fetching the hapi docs fails due to being offline.', (done, onCleanup) => {
+            it('errors when fetching docs fails due to being offline.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(Object.assign(new Error(), {
                     syscall: 'getaddrinfo',
@@ -895,13 +895,13 @@ describe('hpal', () => {
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v16.x.x...');
                         expect(result.errorOutput).to.contain('Could not fetch the hapi docs. It seems you may be offline– ensure you have a connection then try again.');
                     })
                     .then(done, done);
             });
 
-            it('errors when the hapi docs can\'t be fetched (boom error).', (done, onCleanup) => {
+            it('errors when docs can\'t be fetched (boom error).', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(Boom.badImplementation());
                 onCleanup(mockWreck.cleanup);
@@ -910,13 +910,13 @@ describe('hpal', () => {
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v16.x.x...');
                         expect(result.errorOutput).to.contain('Could not fetch the hapi docs: Internal Server Error');
                     })
                     .then(done, done);
             });
 
-            it('errors when the hapi docs can\'t be fetched (non-boom error).', (done, onCleanup) => {
+            it('errors when docs can\'t be fetched (non-boom error).', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(new Error('No way can you get those docs'));
                 onCleanup(mockWreck.cleanup);
@@ -925,13 +925,13 @@ describe('hpal', () => {
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v16.x.x...');
                         expect(result.errorOutput).to.contain('Could not fetch the hapi docs: No way can you get those docs');
                     })
                     .then(done, done);
             });
 
-            it('errors when hapi package is corrupted and version can\'t be determined.', (done, onCleanup) => {
+            it('errors when package is corrupted and version can\'t be determined.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
                 onCleanup(mockWreck.cleanup);
@@ -964,12 +964,12 @@ describe('hpal', () => {
 
                         expect(err).to.be.instanceof(SyntaxError);
                         expect(err).to.not.be.instanceof(DisplayError);
-                        expect(err.output).to.equal('Searching docs from hapi\'s master branch...');
+                        expect(err.output).to.equal('Searching docs from hapijs/hapi @ master...');
                     })
                     .then(done, done);
             });
 
-            it('defaults to fetch the version of hapi docs for the version used in the current project.', (done, onCleanup) => {
+            it('defaults to fetch docs for the version of the package used in the current project.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
                 onCleanup(mockWreck.cleanup);
@@ -982,13 +982,13 @@ describe('hpal', () => {
                         ]);
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('Searching docs from hapi v6.6.6...');
+                        expect(result.output).to.equal('Searching docs from hapijs/hapi @ v6.6.6...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
                     .then(done, done);
             });
 
-            it('fetches the version of hapi docs on the master branch when not in a project.', (done, onCleanup) => {
+            it('fetches docs from the packages\'s master branch when not in a project.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
                 onCleanup(mockWreck.cleanup);
@@ -1001,13 +1001,13 @@ describe('hpal', () => {
                         ]);
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('Searching docs from hapi\'s master branch...');
+                        expect(result.output).to.equal('Searching docs from hapijs/hapi @ master...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
                     .then(done, done);
             });
 
-            it('fetches the version of hapi docs on the master branch when in a project that does not use hapi.', (done, onCleanup) => {
+            it('fetches docs from the packages\'s master branch when in a project that does not use the package.', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
                 onCleanup(mockWreck.cleanup);
@@ -1020,18 +1020,18 @@ describe('hpal', () => {
                         ]);
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('Searching docs from hapi\'s master branch...');
+                        expect(result.output).to.equal('Searching docs from hapijs/hapi @ master...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
                     .then(done, done);
             });
 
-            it('fetches the version of hapi docs for the version specified by [--hapi].', (done, onCleanup) => {
+            it('fetches docs for the version specified by [--ver].', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
                 onCleanup(mockWreck.cleanup);
 
-                RunUtil.cli(['docs', 'xxx', '--hapi', '4.2.0'], 'specific-hapi-version')
+                RunUtil.cli(['docs', 'xxx', '--ver', '4.2.0'], 'specific-hapi-version')
                     .then((result) => {
 
                         expect(mockWreck.calls).to.equal([
@@ -1039,24 +1039,65 @@ describe('hpal', () => {
                         ]);
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('Searching docs from hapi v4.2.0...');
+                        expect(result.output).to.equal('Searching docs from hapijs/hapi @ v4.2.0...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
                     .then(done, done);
             });
 
-            it('errors when the hapi version specified by [--hapi] isn\'t semver valid.', (done, onCleanup) => {
+            it('fetches docs for any ref specified by [--ver].', (done, onCleanup) => {
 
                 const mockWreck = mockWreckGet(null);
                 onCleanup(mockWreck.cleanup);
 
-                RunUtil.cli(['docs', 'xxx', '--hapi', '4.2.x'], 'specific-hapi-version')
+                RunUtil.cli(['docs', 'xxx', '--ver', 'branch-name'])
                     .then((result) => {
 
-                        expect(mockWreck.calls).to.equal([]);
+                        expect(mockWreck.calls).to.equal([
+                            'https://raw.githubusercontent.com/hapijs/hapi/branch-name/API.md'
+                        ]);
+
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('');
-                        expect(result.errorOutput).to.contain('The --hapi option should specify a valid semver version. "4.2.x" is invalid.');
+                        expect(result.output).to.equal('Searching docs from hapijs/hapi @ branch-name...');
+                        expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+                    })
+                    .then(done, done);
+            });
+
+            it('fetches docs for package specified as docs[:package], defaulting to hapijs repo.', (done, onCleanup) => {
+
+                const mockWreck = mockWreckGet(null);
+                onCleanup(mockWreck.cleanup);
+
+                RunUtil.cli(['docs:joi', 'xxx'], '/')
+                    .then((result) => {
+
+                        expect(mockWreck.calls).to.equal([
+                            'https://raw.githubusercontent.com/hapijs/joi/master/API.md'
+                        ]);
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('Searching docs from hapijs/joi @ master...');
+                        expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+                    })
+                    .then(done, done);
+            });
+
+            it('fetches docs for package specified as docs[:package], with pal repos.', (done, onCleanup) => {
+
+                const mockWreck = mockWreckGet(null);
+                onCleanup(mockWreck.cleanup);
+
+                RunUtil.cli(['docs:schmervice', 'xxx'], '/')
+                    .then((result) => {
+
+                        expect(mockWreck.calls).to.equal([
+                            'https://raw.githubusercontent.com/devinivy/schmervice/master/API.md'
+                        ]);
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('Searching docs from devinivy/schmervice @ master...');
+                        expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
                     .then(done, done);
             });
@@ -1147,7 +1188,7 @@ describe('hpal', () => {
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v16.x.x...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "rv".');
                     })
                     .then(done, done);
@@ -1242,7 +1283,7 @@ describe('hpal', () => {
                     .then((result) => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapi v16.x.x...');
+                        expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v16.x.x...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "#route-options nope".');
                     })
                     .then(done, done);
