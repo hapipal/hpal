@@ -19,7 +19,7 @@ You may also install hpal locally within a project as a dev dependency and/or in
 
 If you want to try the hpal CLI right now, just copy and paste this right into your terminal!
 ```
-npx hpal docs --hapi 17.2.0 h.response
+npx hpal docs --ver 17.2.0 h.response
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ Commands:
     e.g. hpal docs --ver 17.2.0 h.continue
 
 
-Options:                    
+Options:
 
   -h, --help       show usage options
   -v, --version    show version information
@@ -80,13 +80,13 @@ Searches the [hapi API reference](https://github.com/hapijs/hapi/blob/master/API
 
 `<docs-section>` can be,
  - the name of any haute-couture item (e.g. `route`, `plugins`, `auth/default`) when in a haute-couture project
-   - e.g. `hpal docs auth/scheme`
+   - e.g. [`hpal docs auth/scheme`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.scheme())
  - the name of any server, request, toolkit, etc. method
-   - e.g. `hpal docs request.setUrl`
+   - e.g. [`hpal docs request.setUrl`](https://github.com/hapijs/hapi/blob/master/API.md#request.setUrl())
  - a substring of any heading from the docs
-   - e.g. `hpal docs router`
+   - e.g. [`hpal docs router`](https://github.com/hapijs/hapi/blob/master/API.md#server.options.router)
  - an anchor seen anywhere in the docs
-   - e.g. `hpal docs '#catch-all-route'`
+   - e.g. [`hpal docs '#catch-all-route'`](https://github.com/hapijs/hapi/blob/master/API.md#catch-all-route)
 
 When `<config-item>` is also specified, the first list item within the matched `<docs-section>` that matches text from `<config-item>` will be displayed on its own.  For example, `hpal docs request.setUrl` is a long section of the docs but `hpal docs request.setUrl stripTrailingSlash` contains only information relevant to the `stripTrailingSlash` argument.
 
