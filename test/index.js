@@ -1289,6 +1289,31 @@ describe('hpal', () => {
                     .then(done, done);
             });
         });
+
+        describe.only('run command', () => {
+
+            it('errors when there\'s no package.json file found.', () => {
+
+                return RunUtil.cli(['run', 'x'], '/')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('No nearby package.json found– you don\'t seem to be in a project.');
+                    });
+            });
+
+            it('errors when command is not specified.', () => {
+
+                return RunUtil.cli(['run'], '/')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('You must specify a command to run.');
+                    });
+            });
+        });
     });
 
     describe('bin', () => {
