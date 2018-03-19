@@ -4,8 +4,10 @@
 
 const Fs = require('fs');
 const Os = require('os');
+const Path = require('path');
 const ChildProcess = require('child_process');
 const Lab = require('lab');
+const Hapi = require('hapi');
 const Pify = require('pify');
 const Rimraf = require('rimraf');
 const StripAnsi = require('strip-ansi');
@@ -544,18 +546,18 @@ describe('hpal', () => {
             const exec = (cmd, cwd) => Pify(ChildProcess.exec, { multiArgs: true })(cmd, { cwd: `${__dirname}/closet/${cwd}` });
             const answerNpmInit = (cli, name, bail) => {
 
-                cli.args.out.on('data', (data) => {
+                cli.options.out.on('data', (data) => {
 
                     data = data.toString();
 
                     if (~data.indexOf('name: ')) {
-                        process.nextTick(() => cli.args.in.write(`${name}\n`));
+                        process.nextTick(() => cli.options.in.write(`${name}\n`));
                     }
                     else if ((/^[\w ]+: /).test(data)) {
-                        process.nextTick(() => cli.args.in.write('\n')); // "Return" through the npm prompts
+                        process.nextTick(() => cli.options.in.write('\n')); // "Return" through the npm prompts
                     }
                     else if (~data.indexOf('Is this ok?')) {
-                        process.nextTick(() => cli.args.in.write(bail ? 'no\n' : 'yes\n'));
+                        process.nextTick(() => cli.options.in.write(bail ? 'no\n' : 'yes\n'));
                     }
                 });
             };
@@ -1130,7 +1132,7 @@ describe('hpal', () => {
 
                         const cli = RunUtil.cli(['docs', 'plugin'], 'single-as-file');
 
-                        cli.args.err.on('data', (data) => {
+                        cli.options.err.on('data', (data) => {
 
                             stderr += data;
                         });
@@ -1290,7 +1292,7 @@ describe('hpal', () => {
             });
         });
 
-        describe.only('run command', () => {
+        describe('run command', () => {
 
             it('errors when there\'s no package.json file found.', () => {
 
@@ -1311,6 +1313,140 @@ describe('hpal', () => {
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
                         expect(result.errorOutput).to.contain('You must specify a command to run.');
+                    });
+            });
+
+            it('errors when there is no server to require.', () => {
+
+                return RunUtil.cli(['run', 'x'], 'run-no-server')
+                    .then((result) => {
+
+                        const root = Path.resolve(__dirname, 'closet/run-no-server');
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain(`No server found! To run commands the current project must export { deployment: async () => server } from ${root}/server[.js].`);
+                    });
+            });
+
+            it('errors when server does not export { deployment }.', () => {
+
+                return RunUtil.cli(['run', 'x'], 'run-bad-server')
+                    .then((result) => {
+
+                        const root = Path.resolve(__dirname, 'closet/run-bad-server');
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain(`No server found! To run commands the current project must export { deployment: async () => server } from ${root}/server[.js].`);
+                    });
+            });
+
+            it('errors when calling a vanilla or default command that does not exist.', () => {
+
+                return RunUtil.cli(['run', 'x'], 'run-no-command')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Plugin x does not have a default command.');
+
+                        return RunUtil.cli(['run', 'y:some-command'], 'run-no-command');
+                    })
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Plugin y does not have the command "some-command".');
+                    });
+            });
+
+            it('errors when calling a command that is not exported properly.', () => {
+
+                return RunUtil.cli(['run', 'x:bad-command'], 'run-bad-command')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.equal('');
+                        expect(result.errorOutput).to.contain('Plugin x does not have the command "bad-command".');
+                    });
+            });
+
+            it('lists all commands found on a server: default, hpal-prefixed, and vanilla.', () => {
+
+                return RunUtil.cli(['run', '--list'], 'run-list-commands')
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.errorOutput).to.equal('');
+
+                        const output = StripAnsi(result.output).trim();
+
+                        expect(output).to.equal([
+                            'Here are some commands we found on your server:',
+                            '',
+                            '  hpal run x',
+                            '  hpal run x:camel-cased',
+                            '  hpal run x:described',
+                            '    • This is what I do',
+                            '  hpal run y',
+                            '  hpal run y:camel-cased',
+                            '  hpal run y:described',
+                            '    • This is what I do'
+                        ].join('\n'));
+                    });
+            });
+
+            it('lists no commands found on a server.', () => {
+
+                return RunUtil.cli(['run', '--list'], 'run-list-no-commands')
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.errorOutput).to.equal('');
+
+                        const output = StripAnsi(result.output).trim();
+
+                        expect(output).to.equal('No commands found on your server.');
+                    });
+            });
+
+            it('runs a command, passing the server, normalized args, the project root, etc.', () => {
+
+                return RunUtil.cli(['run', 'x:some-command', '-a', 'arg1', '--arg2', 'arg3'], 'run-command')
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.errorOutput).to.equal('');
+                        expect(result.output).to.contain('Running x:some-command...');
+                        expect(result.output).to.contain('Complete!');
+                        expect(result.options.cmd[0]).to.be.instanceof(Hapi.Server);
+                        expect(result.options.cmd[1]).to.equal(['-a', 'arg1', '--arg2', 'arg3']);
+                        expect(result.options.cmd[2]).to.equal(Path.resolve(__dirname, 'closet/run-command'));
+                        expect(result.options.cmd[3]).to.exist();
+                        expect(result.options.cmd[3].options).to.shallow.equal(result.options);
+                    });
+            });
+
+            it('runs a default command.', () => {
+
+                return RunUtil.cli(['run', 'x'], 'run-default-command')
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.errorOutput).to.equal('');
+                        expect(result.options.cmd).to.equal('ran');
+                    });
+            });
+
+            it('runs a default command.', () => {
+
+                return RunUtil.cli(['run', 'x:some-command'], 'run-prefixed-command')
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.errorOutput).to.equal('');
+                        expect(result.options.cmd).to.equal('ran');
                     });
             });
         });
