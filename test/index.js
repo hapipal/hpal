@@ -1454,7 +1454,7 @@ describe('hpal', () => {
                     });
             });
 
-            it('runs a default command.', () => {
+            it('runs an hpal-prefixed command.', () => {
 
                 return RunUtil.cli(['run', 'x:some-command'], 'run-prefixed-command')
                     .then((result) => {
