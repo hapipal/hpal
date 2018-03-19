@@ -1325,7 +1325,7 @@ describe('hpal', () => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
-                        expect(result.errorOutput).to.contain(`No server found! To run commands the current project must export { deployment: async () => server } from ${root}/server[.js].`);
+                        expect(result.errorOutput).to.contain(`No server found! To run commands the current project must export { deployment: async () => server } from ${root}/server.`);
                     });
             });
 
@@ -1338,7 +1338,7 @@ describe('hpal', () => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
-                        expect(result.errorOutput).to.contain(`No server found! To run commands the current project must export { deployment: async () => server } from ${root}/server[.js].`);
+                        expect(result.errorOutput).to.contain(`No server found! To run commands the current project must export { deployment: async () => server } from ${root}/server.`);
                     });
             });
 
@@ -1383,7 +1383,7 @@ describe('hpal', () => {
                         const output = StripAnsi(result.output).trim();
 
                         expect(output).to.equal([
-                            'Here are some commands we found on your server:',
+                            'Here are some commands found on your server:',
                             '',
                             '  hpal run x',
                             '  hpal run x:camel-cased',
@@ -1418,13 +1418,28 @@ describe('hpal', () => {
 
                         expect(result.err).to.not.exist();
                         expect(result.errorOutput).to.equal('');
-                        expect(result.output).to.contain('Running x:some-command...');
-                        expect(result.output).to.contain('Complete!');
                         expect(result.options.cmd[0]).to.be.instanceof(Hapi.Server);
                         expect(result.options.cmd[1]).to.equal(['-a', 'arg1', '--arg2', 'arg3']);
                         expect(result.options.cmd[2]).to.equal(Path.resolve(__dirname, 'closet/run-command'));
                         expect(result.options.cmd[3]).to.exist();
                         expect(result.options.cmd[3].options).to.shallow.equal(result.options);
+                        expect(result.output).to.contain('Running x:some-command...');
+                        expect(result.output).to.contain('Complete!');
+
+                        // Test args against flag collision
+                        return RunUtil.cli(['run', 'x:some-command', '--asFile', '-h'], 'run-command');
+                    })
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.errorOutput).to.equal('');
+                        expect(result.options.cmd[0]).to.be.instanceof(Hapi.Server);
+                        expect(result.options.cmd[1]).to.equal(['--asFile', '-h']);
+                        expect(result.options.cmd[2]).to.equal(Path.resolve(__dirname, 'closet/run-command'));
+                        expect(result.options.cmd[3]).to.exist();
+                        expect(result.options.cmd[3].options).to.shallow.equal(result.options);
+                        expect(result.output).to.contain('Running x:some-command...');
+                        expect(result.output).to.contain('Complete!');
                     });
             });
 
