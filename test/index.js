@@ -181,7 +181,7 @@ describe('hpal', () => {
                     });
             });
 
-            it('succeeds when finding a .hc.js file is not ambiguous in the project only due to the cwd.', () => {
+            it('succeeds when finding a .hc.js file from a cwd deep in the project.', () => {
 
                 return RunUtil.cli(['make', 'route'], 'non-ambiguous-hc-file-cwd/project-a')
                     .then((result) => {
