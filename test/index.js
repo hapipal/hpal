@@ -157,10 +157,46 @@ describe('hpal', () => {
 
                         expect(result.err).to.be.instanceof(DisplayError);
                         expect(result.output).to.equal('');
-                        expect(result.errorOutput).to.contain('It\'s ambiguous which directory containing a .hc.js file to use: ');
-                        expect(result.errorOutput).to.contain('project-a');
-                        expect(result.errorOutput).to.contain('project-b');
+                        expect(result.errorOutput).to.contain('It\'s ambiguous which directory containing a .hc.js file to use: project-a/.hc.js, project-b/.hc.js');
                         expect(result.errorOutput.match(/,/g)).to.have.length(1);
+                    });
+            });
+
+            it('succeeds when finding a .hc.js file is ambiguous in the project, but not to the cwd (multi-plugin project).', () => {
+
+                return RunUtil.cli(['make', 'route'], 'ambiguous-hc-file/project-a')
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.output).to.contain('Wrote routes/index.js');
+                        expect(result.errorOutput).to.equal('');
+
+                        return read('ambiguous-hc-file/project-a/routes/index.js');
+                    })
+                    .then((contents) => {
+
+                        expect(contents).to.startWith('\'use strict\';');
+
+                        return rimraf('ambiguous-hc-file/project-a/routes');
+                    });
+            });
+
+            it('succeeds when finding a .hc.js file from a cwd deep in the project.', () => {
+
+                return RunUtil.cli(['make', 'route'], 'non-ambiguous-hc-file-cwd/project-a')
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.output).to.contain('Wrote ../project-b/routes/index.js');
+                        expect(result.errorOutput).to.equal('');
+
+                        return read('non-ambiguous-hc-file-cwd/project-b/routes/index.js');
+                    })
+                    .then((contents) => {
+
+                        expect(contents).to.startWith('\'use strict\';');
+
+                        return rimraf('non-ambiguous-hc-file-cwd/project-b/routes');
                     });
             });
 
