@@ -186,7 +186,7 @@ describe('hpal', () => {
                                 super(pattern, opts, (err, res) => cb(err, res && res.reverse()));
 
                                 Glob.Glob = OrigGlob;
-                           }
+                            }
                         };
 
                         Glob.Glob.notOriginal = true;
