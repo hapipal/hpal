@@ -81,6 +81,7 @@ exports.cli = (argv, cwd, colors) => {
 
             if (!(err instanceof DisplayError)) {
                 err.output = output;
+                err.options = options;
                 throw err;
             }
 

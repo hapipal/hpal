@@ -1411,7 +1411,7 @@ describe('hpal', () => {
                     });
             });
 
-            it('runs a command, passing the server, normalized args, the project root, etc.', () => {
+            it('runs a command, passing the server, normalized args, the project root, etc, and stopping server.', () => {
 
                 return RunUtil.cli(['run', 'x:some-command', '-a', 'arg1', '--arg2', 'arg3'], 'run-command')
                     .then((result) => {
@@ -1419,6 +1419,7 @@ describe('hpal', () => {
                         expect(result.err).to.not.exist();
                         expect(result.errorOutput).to.equal('');
                         expect(result.options.cmd[0]).to.be.instanceof(Hapi.Server);
+                        expect(result.options.cmd[0].stopped).to.equal(true);
                         expect(result.options.cmd[1]).to.equal(['-a', 'arg1', '--arg2', 'arg3']);
                         expect(result.options.cmd[2]).to.equal(Path.resolve(__dirname, 'closet/run-command'));
                         expect(result.options.cmd[3]).to.exist();
@@ -1434,6 +1435,7 @@ describe('hpal', () => {
                         expect(result.err).to.not.exist();
                         expect(result.errorOutput).to.equal('');
                         expect(result.options.cmd[0]).to.be.instanceof(Hapi.Server);
+                        expect(result.options.cmd[0].stopped).to.equal(true);
                         expect(result.options.cmd[1]).to.equal(['--asFile', '-h']);
                         expect(result.options.cmd[2]).to.equal(Path.resolve(__dirname, 'closet/run-command'));
                         expect(result.options.cmd[3]).to.exist();
@@ -1441,6 +1443,38 @@ describe('hpal', () => {
                         expect(result.output).to.contain('Running x:some-command...');
                         expect(result.output).to.contain('Complete!');
                     });
+            });
+
+            it('stops server when a DisplayError is thrown.', () => {
+
+                return RunUtil.cli(['run', 'x:some-command'], 'run-command-display-error')
+                    .then((result) => {
+
+                        expect(result.err).to.be.instanceof(DisplayError);
+                        expect(result.output).to.contain('Running x:some-command...');
+                        expect(result.errorOutput).to.contain('Something happened');
+                        expect(result.options.cmd[0]).to.be.instanceof(Hapi.Server);
+                        expect(result.options.cmd[0].stopped).to.equal(true);
+                    });
+            });
+
+            it('fails hard when a non-DisplayError is thrown.', (done) => {
+
+                RunUtil.cli(['run', 'x:some-command'], 'run-command-bad-error')
+                    .then(() => {
+
+                        throw new Error('Shouldn\'t end-up here');
+                    })
+                    .catch((err) => {
+
+                        expect(err).to.be.instanceof(Error);
+                        expect(err).to.not.be.instanceof(DisplayError);
+                        expect(err.message).to.equal('Something happened');
+                        expect(err.output).to.contain('Running x:some-command...');
+                        expect(err.options.cmd[0]).to.be.instanceof(Hapi.Server);
+                        expect(err.options.cmd[0].stopped).to.not.equal(true);
+                    })
+                    .then(done, done);
             });
 
             it('runs a default command.', () => {

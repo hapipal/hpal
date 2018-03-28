@@ -14,6 +14,17 @@ exports.deployment = () => {
                 return Promise.resolve().then(() => {
 
                     ctx.options.cmd = [cmdSrv, args, root, ctx];
+
+                    const stop = cmdSrv.stop;
+                    cmdSrv.stop = () => {
+
+                        cmdSrv.stop = stop;
+
+                        return cmdSrv.stop().then(() => {
+
+                            cmdSrv.stopped = true;
+                        });
+                    };
                 });
             }
         });
