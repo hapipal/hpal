@@ -8,7 +8,7 @@ hapi pal CLI
   - :sparkles: create new hapi projects from the [pal boilerplate](https://github.com/devinivy/boilerplate-api)
   - :bouquet: generate files for routes, extensions, [models](https://github.com/BigRoomStudios/schwifty), [services](https://github.com/devinivy/schmervice), etc. via [`haute-couture`](https://github.com/devinivy/haute-couture)
   - :books: search the [hapi docs](https://github.com/hapijs/hapi/blob/master/API.md) from the command line– plus many others such as [joi](https://github.com/hapijs/joi/blob/master/API.md) and [toys](https://github.com/devinivy/toys/blob/master/API.md)
-
+  - :honeybee: run custom commands defined by your server's hapi plugins
 
 ## Installation
 ```
@@ -37,6 +37,9 @@ Commands:
   hpal docs[:<package-name>] [--ver x.y.z|ref] <docs-section> [<config-item>]
     e.g. hpal docs --ver 17.2.0 h.continue
 
+  hpal run [--list] <cmd> [<cmd-options>]
+    e.g. hpal run plugin-name:command-name
+
 
 Options:
 
@@ -45,6 +48,7 @@ Options:
   -d, --asDir      [make] creates new haute-couture item in a directory index file
   -f, --asFile     [make] creates new haute-couture item in a file
   -V, --ver        [docs] specifies the version/ref of the API docs to search for the given package
+  -l, --list       [run] lists all available commands on your server
 ```
 
 ### Commands
@@ -93,3 +97,83 @@ When `<config-item>` is also specified, the first list item within the matched `
 All searches are case-insensitive.
 
 When `--ver` is specified as a semver version or a git ref (branch, tag, or commit), then that version of the docs will be searched.  Otherwise, when inside a project the docs for the currently installed version of the given package will be searched.  When not in a project and `--ver` is not specified, the master branch of the package's docs will be searched.
+
+#### `hpal run`
+> ```
+> hpal run [--list] <cmd> [<cmd-options>]
+>   e.g. hpal run plugin-name:command-name
+> ```
+
+Runs the command `<cmd>` defined by some plugin on your hapi server.  If the plugin `my-plugin` defines a command `do-the-thing`, then that command can be run with `hpal run my-plugin:do-the-thing`.  If the plugin's name is prefixed with `hpal-`, then `hpal-` may be omitted when running the command.  Plugins may also have a "default" command that can be run as `hpal run my-plugin`.
+
+A list of commands available on the server and their descriptions may be viewed with `hpal run --list`.
+
+Upon running a command hpal will initialize the server if it is not already initialized, then stop the server when the command exits successfully.
+
+##### Requirements
+
+In order to use `hpal run`, hpal must be able to find your hapi server.  It will look in `server.js` and `server/index.js` relative to the root of your project.  That file should export a property `deployment` which contains a function that returns a hapi server, or a promise for a hapi server (for example, an `async` function).
+
+If you're using the [pal boilerplate](https://github.com/devinivy/boilerplate-api) then you should already be all set!
+
+Here is a very basic example,
+```js
+// server/index.js
+const Hapi = require('hapi');
+const AppPlugin = require('../app');
+
+exports.deployment = async (start) => {
+
+    const server = Hapi.server();
+
+    await server.register(AppPlugin);
+
+    if (start) {
+        await server.start();
+    }
+
+    return server;
+};
+
+// Start the server only when this file is
+// run directly from the CLI, i.e. "node ./server"
+
+if (!module.parent) {
+    exports.deployment(true);
+}
+```
+
+##### Creating your own commands
+
+Any hapi plugin can create commands that are runnable with `hpal run`!  Commands are exposed to hpal using hapi's [`server.expose()`](https://github.com/hapijs/hapi/blob/master/API.md#server.expose()).  Inside your plugin `my-plugin` simply call `server.expose('commands', commands)`, where `commands` is an object,
+ - whose keys are command names.  The name `default` is reserved for the command `hpal run my-plugin`.  Camel-cased command names are converted to kebab-case, so if the key is `someCommand` then it is run using `hpal run my-plugin:some-command`.
+ - whose values are either objects `{ command, description }` or functions `command` where,
+   - `command` - a function with the signature `async function(server, args, root, ctx)`.
+     - `server` - the initialized hapi server.
+     - `args` - an array of all the command's CLI arguments.  For example, running `hpal run my-plugin --custom-flag value` will result in `args` being `['--custom-flag', 'value']`.
+     - `root` - an absolute path to the project's root directory.
+     - `ctx` - a context object containing some hpal internals that may be useful during testing.  Also contains an error class `DisplayError` than can be used to indicate a "safe" failure to hpal.  Throwing a `DisplayError` will output the error's `message` and exit the process with code `1`, but not display a stack trace as would happen with an unexpected error.
+   - `description` - a string description of the command displayed by `hpal run --list`.
+
+For example, here is a plugin that creates a command to display the server's route table,
+```js
+// hpal run route-table:show
+
+module.exports = {
+    name: 'hpal-route-table', // The hpal- prefix is ignored when running the command
+    register(server) {
+
+        server.expose('commands', {
+            show(srv) {
+
+                console.log('Route table:');
+
+                srv.table().forEach(({ method, path }) => {
+
+                    console.log(`  ${method} ${path}`);
+                });
+            }
+        });
+    }
+};
+```

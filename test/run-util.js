@@ -63,7 +63,7 @@ exports.cli = (argv, cwd, colors) => {
         errorOutput += data;
     });
 
-    const args = {
+    const options = {
         argv,
         cwd,
         in: stdin,
@@ -73,19 +73,20 @@ exports.cli = (argv, cwd, colors) => {
     };
 
     const cli = Promise.resolve()
-        .then(() => Hpal.start(args))
-        .then(() => ({ err: null, output, errorOutput }))
+        .then(() => Hpal.start(options))
+        .then(() => ({ err: null, output, errorOutput, options }))
         .catch((err) => {
 
             output = output.trim(); // Ignore leading and trailing whitespace for testing purposes
 
             if (!(err instanceof DisplayError)) {
                 err.output = output;
+                err.options = options;
                 throw err;
             }
 
-            return { err, output, errorOutput: err.message };
+            return { err, output, errorOutput: err.message, options };
         });
 
-    return Object.assign(cli, { args });
+    return Object.assign(cli, { options });
 };
