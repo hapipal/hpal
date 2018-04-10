@@ -2,12 +2,14 @@
 
 hapi pal CLI
 
-[![Build Status](https://travis-ci.org/devinivy/hpal.svg?branch=master)](https://travis-ci.org/devinivy/hpal) [![Coverage Status](https://coveralls.io/repos/devinivy/hpal/badge.svg?branch=master&service=github)](https://coveralls.io/github/devinivy/hpal?branch=master)
+[![Build Status](https://travis-ci.org/hapipal/hpal.svg?branch=master)](https://travis-ci.org/hapipal/hpal) [![Coverage Status](https://coveralls.io/repos/hapipal/hpal/badge.svg?branch=master&service=github)](https://coveralls.io/github/hapipal/hpal?branch=master)
+
+Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
 `hpal` was designed to help you,
-  - :sparkles: create new hapi projects from the [pal boilerplate](https://github.com/devinivy/boilerplate-api)
-  - :bouquet: generate files for routes, extensions, [models](https://github.com/BigRoomStudios/schwifty), [services](https://github.com/devinivy/schmervice), etc. via [`haute-couture`](https://github.com/devinivy/haute-couture)
-  - :books: search the [hapi docs](https://github.com/hapijs/hapi/blob/master/API.md) from the command line– plus many others such as [joi](https://github.com/hapijs/joi/blob/master/API.md) and [toys](https://github.com/devinivy/toys/blob/master/API.md)
+  - :sparkles: create new hapi projects from the [pal boilerplate](https://github.com/hapipal/boilerplate)
+  - :bouquet: generate files for routes, extensions, [models](https://github.com/hapipal/schwifty), [services](https://github.com/hapipal/schmervice), etc. via [`haute-couture`](https://github.com/hapipal/haute-couture)
+  - :books: search the [hapi docs](https://github.com/hapijs/hapi/blob/master/API.md) from the command line– plus many others such as [joi](https://github.com/hapijs/joi/blob/master/API.md) and [toys](https://github.com/hapipal/toys/blob/master/API.md)
   - :honeybee: run custom commands defined by your server's hapi plugins
 
 ## Installation
@@ -58,7 +60,7 @@ Options:
 >   e.g. hpal new ~/node-projects/new-pal-project
 > ```
 
-Clones the [pal boilerplate](https://github.com/devinivy/boilerplate-api), helps you fill-in initial details with [`npm init`](https://docs.npmjs.com/cli/init), pulls down the [pal flavors](https://github.com/devinivy/boilerplate-api#flavors), and leaves you prepared to make the first commit to your new project.
+Clones the [pal boilerplate](https://github.com/hapipal/boilerplate), helps you fill-in initial details with [`npm init`](https://docs.npmjs.com/cli/init), pulls down the [pal flavors](https://github.com/hapipal/boilerplate#flavors), and leaves you prepared to make the first commit to your new project.
 
 #### `hpal make`
 > ```
@@ -66,9 +68,9 @@ Clones the [pal boilerplate](https://github.com/devinivy/boilerplate-api), helps
 >   e.g. hpal make route create-user
 > ```
 
-Creates a new file for a [`haute-couture` item](https://github.com/devinivy/haute-couture/blob/master/API.md#files-and-directories) with details ready to be filled-in.  This is the best way to add a route, plugin, model, service, etc. to any project that uses haute-couture.
+Creates a new file for a [`haute-couture` item](https://github.com/hapipal/haute-couture/blob/master/API.md#files-and-directories) with details ready to be filled-in.  This is the best way to add a route, plugin, model, service, etc. to any project that uses haute-couture.
 
-Relies on the presence of a [`.hc.js`](https://github.com/devinivy/haute-couture/blob/master/API.md#specifying-amendments-with-hcjs) file in the project, even if it's empty, in order to determine the base directory of the plugin in which to write the file.  If `.hc.js` contains amendments then those will be respected– in this way you can customize the behavior of `hpal make` per project.  Projects created with [`hpal new`](#hpal-new) are already configured to work with `hpal make`.
+Relies on the presence of a [`.hc.js`](https://github.com/hapipal/haute-couture/blob/master/API.md#specifying-amendments-with-hcjs) file in the project, even if it's empty, in order to determine the base directory of the plugin in which to write the file.  If `.hc.js` contains amendments then those will be respected– in this way you can customize the behavior of `hpal make` per project.  Projects created with [`hpal new`](#hpal-new) are already configured to work with `hpal make`.
 
 The `--asDir` and `--asFile` flags can be used to determine where the file is written.  For a list item like `routes`, specifying `--asFile` (`hpal make route --asFile`) will create `routes.js` rather than `routes/index.js`.  For a single item like `auth/default`, specifying `--asDir` (`hpal make auth/default --asDir`) will create `auth/default/index.js` rather than `auth/default.js`.  When an optional `<item-name>` is specified then that will always place a file in the relevant directory with the name `<item-name>.js`.  For example, `hpal make route create-user` will write the file `routes/create-user.js`.
 
@@ -80,7 +82,7 @@ The `--asDir` and `--asFile` flags can be used to determine where the file is wr
 
 Searches the [hapi API reference](https://github.com/hapijs/hapi/blob/master/API.md) for the relevant section or configuration item then prints it formatted to the console.
 
-:dizzy: This command can also search the API reference for any package within the pal and hapijs ecosystems by specifying `<package-name>`, e.g. [`hpal docs:toys noop`](https://github.com/devinivy/toys/blob/master/API.md#toysnoop) or [`hpal docs:joi any.strip`](https://github.com/hapijs/joi/blob/master/API.md#anystrip).
+:dizzy: This command can also search the API reference for any package within the pal and hapijs ecosystems by specifying `<package-name>`, e.g. [`hpal docs:toys noop`](https://github.com/hapipal/toys/blob/master/API.md#toysnoop) or [`hpal docs:joi any.strip`](https://github.com/hapijs/joi/blob/master/API.md#anystrip).
 
 `<docs-section>` can be,
  - the name of any haute-couture item (e.g. `route`, `plugins`, `auth/default`) when in a haute-couture project
@@ -114,7 +116,7 @@ Upon running a command hpal will initialize the server if it is not already init
 
 In order to use `hpal run`, hpal must be able to find your hapi server.  It will look in `server.js` and `server/index.js` relative to the root of your project.  That file should export a property `deployment` which contains a function that returns a hapi server, or a promise for a hapi server (for example, an `async` function).
 
-If you're using the [pal boilerplate](https://github.com/devinivy/boilerplate-api) then you should already be all set!
+If you're using the [pal boilerplate](https://github.com/hapipal/boilerplate) then you should already be all set!
 
 Here is a very basic example,
 ```js

@@ -15,15 +15,24 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/devinivy/hpal.git"
+    "url": "git+https://github.com/hapipal/hpal.git"
   },
-  "keywords": [],
+  "keywords": [
+    "hapi",
+    "hapijs",
+    "pal",
+    "cli",
+    "scaffold",
+    "auto-generate",
+    "project",
+    "commands"
+  ],
   "author": "Devin Ivy <devin@bigroomstudios.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/devinivy/hpal/issues"
+    "url": "https://github.com/hapipal/hpal/issues"
   },
-  "homepage": "https://github.com/devinivy/hpal#readme",
+  "homepage": "https://github.com/hapipal/hpal#readme",
   "dependencies": {
     "bossy": "3.x.x",
     "glob": "7.x.x",
