@@ -1529,7 +1529,7 @@ describe('hpal', () => {
 
                         expect(result.err).to.not.exist();
                         expect(result.errorOutput).to.equal('');
-                        expect(result.output).to.equal('\n');
+                        expect(result.output).to.equal('');
                     });
             });
 
