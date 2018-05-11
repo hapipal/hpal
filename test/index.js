@@ -1522,6 +1522,17 @@ describe('hpal', () => {
                     });
             });
 
+            it('runs a command and prevents default output', () => {
+
+                return RunUtil.cli(['run', 'x:some-command'], 'run-silent-command')
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.errorOutput).to.equal('');
+                        expect(result.output).to.equal('');
+                    });
+            });
+
             it('stops server when a DisplayError is thrown.', () => {
 
                 return RunUtil.cli(['run', 'x:some-command'], 'run-command-display-error')
