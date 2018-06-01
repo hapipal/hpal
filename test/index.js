@@ -633,7 +633,7 @@ describe('hpal', () => {
                     else if ((/^[\w ]+: /).test(data)) {
                         process.nextTick(() => cli.options.in.write('\n')); // "Return" through the npm prompts
                     }
-                    else if (~data.indexOf('Is this ok?')) {
+                    else if (~data.toLowerCase().indexOf('is this ok?')) {
                         process.nextTick(() => cli.options.in.write(bail ? 'no\n' : 'yes\n'));
                     }
                 });
@@ -767,7 +767,7 @@ describe('hpal', () => {
                 ChildProcess.exec = (cmd, opts, cb) => {
 
                     if (cmd.indexOf('git clone') === 0) {
-                        return process.nextTick(() => cb(new Error('fatal: unable to access \'https://github.com/devinivy/boilerplate-api.git/\': Could not resolve host: github.com')));
+                        return process.nextTick(() => cb(new Error('fatal: unable to access \'https://github.com/hapipal/boilerplate.git/\': Could not resolve host: github.com')));
                     }
 
                     return execOrig(cmd, opts, cb);
@@ -1171,11 +1171,11 @@ describe('hpal', () => {
                     .then((result) => {
 
                         expect(mockWreck.calls).to.equal([
-                            'https://raw.githubusercontent.com/devinivy/schmervice/master/API.md'
+                            'https://raw.githubusercontent.com/hapipal/schmervice/master/API.md'
                         ]);
 
                         expect(result.err).to.be.instanceof(DisplayError);
-                        expect(result.output).to.equal('Searching docs from devinivy/schmervice @ master...');
+                        expect(result.output).to.equal('Searching docs from hapipal/schmervice @ master...');
                         expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
                     })
                     .then(done, done);
