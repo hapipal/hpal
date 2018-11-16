@@ -463,11 +463,13 @@ describe('Print.requires()', () => {
 
     it('prints an example\'s requires.', (done) => {
 
-        const ex = { $requires: ['five-spot', 'ten-spot'] };
+        const ex = { $requires: ['five-spot', 'ten-spot', './index', '../../two-levels-up'] };
 
         expect(Print.requires(ex)).to.equal([
             'const FiveSpot = require(\'five-spot\');',
-            'const TenSpot = require(\'ten-spot\');'
+            'const TenSpot = require(\'ten-spot\');',
+            'const Index = require(\'./index\');',
+            'const TwoLevelsUp = require(\'../../two-levels-up\');'
         ].join(Os.EOL));
 
         done();
