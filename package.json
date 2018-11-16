@@ -10,7 +10,7 @@
     "hpal": "./bin/hpal"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -I \"URL,URLSearchParams,BigUint64Array,BigInt64Array,BigInt\" -L test/*.js",
+    "test": "lab -a code -t 100 -I \"URL,URLSearchParams,BigUint64Array,BigInt64Array,BigInt,TextEncoder,BigIntTextEncoder,TextDecoder,queueMicrotask\" -L test/*.js",
     "coveralls": "lab -r lcov test/*.js | coveralls"
   },
   "repository": {
