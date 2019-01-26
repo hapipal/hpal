@@ -3,17 +3,22 @@
 const Hpal = require('..');
 const DisplayError = require('../lib/display-error');
 
-Promise.resolve({
-    argv: process.argv,
-    in: process.stdin,
-    out: process.stdout,
-    err: process.stderr,
-    cwd: process.cwd(),
-    colors: !!require('supports-color').stdout
-})
-    .then(Hpal.start)
-    .then(() => process.exit(0))
-    .catch((err) => {
+(async () => {
+
+    try {
+
+        await Hpal.start({
+            argv: process.argv,
+            in: process.stdin,
+            out: process.stdout,
+            err: process.stderr,
+            cwd: process.cwd(),
+            colors: !!require('supports-color').stdout
+        });
+
+        process.exit(0)
+    }
+    catch (err) {
 
         if (err instanceof DisplayError) {
             console.error(err.message);
@@ -23,4 +28,5 @@ Promise.resolve({
         }
 
         process.exit(1);
-    });
+    }
+})();

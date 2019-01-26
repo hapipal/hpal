@@ -5,10 +5,10 @@
 const Fs = require('fs');
 const Os = require('os');
 const Path = require('path');
+const Util = require('util');
 const ChildProcess = require('child_process');
 const Lab = require('lab');
 const Hapi = require('hapi');
-const Pify = require('pify');
 const Rimraf = require('rimraf');
 const StripAnsi = require('strip-ansi');
 const Boom = require('boom');
@@ -31,8 +31,8 @@ describe('hpal', () => {
 
     describe('CLI', () => {
 
-        const rimraf = (file) => Pify(Rimraf)(`${__dirname}/closet/${file}`, { disableGlob: true });
-        const read = (file) => Pify(Fs.readFile)(`${__dirname}/closet/${file}`, 'utf8');
+        const rimraf = (file) => Util.promisify(Rimraf)(`${__dirname}/closet/${file}`, { disableGlob: true });
+        const read = (file) => Util.promisify(Fs.readFile)(`${__dirname}/closet/${file}`, 'utf8');
 
         it('outputs help [-h, --help].', () => {
 
@@ -619,8 +619,13 @@ describe('hpal', () => {
 
         describe('new command', () => {
 
-            const exists = (file) => Pify(Fs.stat)(`${__dirname}/closet/${file}`);
-            const exec = (cmd, cwd) => Pify(ChildProcess.exec, { multiArgs: true })(cmd, { cwd: `${__dirname}/closet/${cwd}` });
+            const exists = (file) => Util.promisify(Fs.stat)(`${__dirname}/closet/${file}`);
+            const exec = (cmd, cwd) => {
+
+                const pexec = Util.promisify((x, y, cb) => ChildProcess.exec(x, y, (err, ...args) => cb(err, !err && args)));
+
+                return pexec(cmd, { cwd: `${__dirname}/closet/${cwd}` });
+            };
             const answerNpmInit = (cli, name, bail) => {
 
                 cli.options.out.on('data', (data) => {
@@ -661,7 +666,7 @@ describe('hpal', () => {
                             exec('git remote', 'new/my-project'),
                             exec('git tag', 'new/my-project'),
                             exec('git ls-files -m', 'new/my-project'),
-                            exec('git log', 'new/my-project').catch((results) => results[2])
+                            exec('git log', 'new/my-project').catch((err) => err)
                         ]);
                     })
                     .then((results) => {
@@ -688,7 +693,7 @@ describe('hpal', () => {
                         expect(tags).to.contain('templated-site');
                         expect(tags).to.contain('fancy-templated-site');
                         expect(modifiedFiles).to.equal('');
-                        expect(logError).to.contain('your current branch \'master\' does not have any commits');
+                        expect(`${logError}`).to.contain('your current branch \'master\' does not have any commits');
                     })
                     .then(done, done);
             });
@@ -715,7 +720,7 @@ describe('hpal', () => {
                             exec('git remote', 'new/bail-on-npm-init'),
                             exec('git tag', 'new/bail-on-npm-init'),
                             exec('git ls-files -m', 'new/bail-on-npm-init'),
-                            exec('git log', 'new/bail-on-npm-init').catch((results) => results[2])
+                            exec('git log', 'new/bail-on-npm-init').catch((err) => err)
                         ]);
                     })
                     .then((results) => {
@@ -742,7 +747,7 @@ describe('hpal', () => {
                         expect(tags).to.contain('templated-site');
                         expect(tags).to.contain('fancy-templated-site');
                         expect(modifiedFiles).to.equal('');
-                        expect(logError).to.contain('your current branch \'master\' does not have any commits');
+                        expect(`${logError}`).to.contain('your current branch \'master\' does not have any commits');
                     })
                     .then(done, done);
             });
@@ -938,7 +943,7 @@ describe('hpal', () => {
                         return Promise.resolve({ payload: Buffer.from('') });
                     }
 
-                    return Pify(Fs.readFile)(`${__dirname}/closet/API.md`).then((payload) => ({ payload }));
+                    return Util.promisify(Fs.readFile)(`${__dirname}/closet/API.md`).then((payload) => ({ payload }));
                 };
 
                 return { calls, cleanup };

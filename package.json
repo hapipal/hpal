@@ -40,7 +40,6 @@
     "marked": "0.3.x",
     "marked-terminal": "2.x.x",
     "mkdirp": "0.5.x",
-    "pify": "3.x.x",
     "pkg-dir": "2.x.x",
     "pluralize": "7.x.x",
     "semver": "5.x.x",
