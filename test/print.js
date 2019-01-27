@@ -6,15 +6,14 @@
 
 const Os = require('os');
 const Lab = require('lab');
+const Code = require('code');
 const StripAnsi = require('strip-ansi');
 const Print = require('../lib/print');
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
-const expect = Lab.expect;
+const { describe, it } = exports.lab = Lab.script();
+const { expect } = Code;
 
 const internals = {};
 
@@ -22,7 +21,7 @@ describe('Print.example()', () => {
 
     const p = Print.example;
 
-    it('prints primitives.', (done) => {
+    it('prints primitives.', () => {
 
         expect(p(1)).to.equal('1');
         expect(p(2.718)).to.equal('2.718');
@@ -32,11 +31,9 @@ describe('Print.example()', () => {
         expect(p(undefined)).to.equal('undefined');
         expect(p(true)).to.equal('true');
         expect(p(false)).to.equal('false');
-
-        done();
     });
 
-    it('prints a primitive $value.', (done) => {
+    it('prints a primitive $value.', () => {
 
         expect(p({ $value: 1 })).to.equal('1');
         expect(p({ $value: 2.718 })).to.equal('2.718');
@@ -46,11 +43,9 @@ describe('Print.example()', () => {
         expect(p({ $value: undefined })).to.equal('undefined');
         expect(p({ $value: true })).to.equal('true');
         expect(p({ $value: false })).to.equal('false');
-
-        done();
     });
 
-    it('prints a commented primitive $value.', (done) => {
+    it('prints a commented primitive $value.', () => {
 
         expect(p({ $comment: 'x', $value: 1 })).to.equal('1 // x');
         expect(p({ $comment: 'x', $value: 2.718 })).to.equal('2.718 // x');
@@ -60,64 +55,48 @@ describe('Print.example()', () => {
         expect(p({ $comment: 'x', $value: undefined })).to.equal('undefined // x');
         expect(p({ $comment: 'x', $value: true })).to.equal('true // x');
         expect(p({ $comment: 'x', $value: false })).to.equal('false // x');
-
-        done();
     });
 
-    it('prints an empty object.', (done) => {
+    it('prints an empty object.', () => {
 
         expect(p({})).to.equal('{}');
-
-        done();
     });
 
-    it('prints a commented empty object.', (done) => {
+    it('prints a commented empty object.', () => {
 
         expect(p({ $value: {}, $comment: 'Empty' })).to.equal('{} // Empty');
-
-        done();
     });
 
-    it('prints an empty array.', (done) => {
+    it('prints an empty array.', () => {
 
         expect(p([])).to.equal('[]');
-
-        done();
     });
 
-    it('prints a commented empty array.', (done) => {
+    it('prints a commented empty array.', () => {
 
         expect(p({ $value: [], $comment: 'Empty' })).to.equal('[] // Empty');
-
-        done();
     });
 
-    it('prints a $literal.', (done) => {
+    it('prints a $literal.', () => {
 
         expect(p({ $literal: 'invalid/js' })).to.equal('invalid/js');
-
-        done();
     });
 
-    it('prints a commented $literal.', (done) => {
+    it('prints a commented $literal.', () => {
 
         expect(p({ $literal: 'invalid/js', $comment: 'This wont parse' })).to.equal('invalid/js // This wont parse');
-
-        done();
     });
 
-    it('prints an object with one key.', (done) => {
+    it('prints an object with one key.', () => {
 
         expect(p({ x: 'y' })).to.equal([
             '{',
             `    x: 'y'`,
             '}'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an object with multiple keys.', (done) => {
+    it('prints an object with multiple keys.', () => {
 
         expect(p({ a: 1, b: 2, c: 3 })).to.equal([
             '{',
@@ -126,11 +105,9 @@ describe('Print.example()', () => {
             `    c: 3`,
             '}'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints a commented non-empty object.', (done) => {
+    it('prints a commented non-empty object.', () => {
 
         expect(p({ $comment: 'All numeric', $value: { a: 1, b: 2, c: 3 } })).to.equal([
             '{ // All numeric',
@@ -139,11 +116,9 @@ describe('Print.example()', () => {
             `    c: 3`,
             '}'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints a object-nested, commented empty object.', (done) => {
+    it('prints a object-nested, commented empty object.', () => {
 
         expect(p({ obj: { $comment: 'Nothin to see', $value: {} } })).to.equal([
             '{',
@@ -157,11 +132,9 @@ describe('Print.example()', () => {
             '    num: 1',
             '}'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an array-nested, commented empty object.', (done) => {
+    it('prints an array-nested, commented empty object.', () => {
 
         expect(p([{ $comment: 'Nothin to see', $value: {} }])).to.equal([
             '[',
@@ -175,11 +148,9 @@ describe('Print.example()', () => {
             `    1`,
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an object-nested non-empty object.', (done) => {
+    it('prints an object-nested non-empty object.', () => {
 
         expect(p({ obj: { a: 1, b: 2 } })).to.equal([
             '{',
@@ -189,11 +160,9 @@ describe('Print.example()', () => {
             '    }',
             '}'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an object-nested, commented non-empty object.', (done) => {
+    it('prints an object-nested, commented non-empty object.', () => {
 
         expect(p({ obj: { $comment: 'Somethin to see', $value: { a: 1, b: 2 } } })).to.equal([
             '{',
@@ -203,11 +172,9 @@ describe('Print.example()', () => {
             '    }',
             '}'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an array-nested non-empty object.', (done) => {
+    it('prints an array-nested non-empty object.', () => {
 
         expect(p([{ a: 1, b: 2 }])).to.equal([
             '[',
@@ -217,11 +184,9 @@ describe('Print.example()', () => {
             '    }',
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an array-nested, commented non-empty object.', (done) => {
+    it('prints an array-nested, commented non-empty object.', () => {
 
         expect(p([{ $comment: 'Somethin to see', $value: { a: 1, b: 2 } }])).to.equal([
             '[',
@@ -231,22 +196,18 @@ describe('Print.example()', () => {
             '    }',
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an array with one value.', (done) => {
+    it('prints an array with one value.', () => {
 
         expect(p(['x'])).to.equal([
             '[',
             `    'x'`,
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an array with multiple values.', (done) => {
+    it('prints an array with multiple values.', () => {
 
         expect(p([1, 2, 3])).to.equal([
             '[',
@@ -255,11 +216,9 @@ describe('Print.example()', () => {
             `    3`,
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints a commented non-empty array.', (done) => {
+    it('prints a commented non-empty array.', () => {
 
         expect(p({ $comment: 'All numeric', $value: [1, 2, 3] })).to.equal([
             '[ // All numeric',
@@ -268,11 +227,9 @@ describe('Print.example()', () => {
             `    3`,
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints a object-nested, commented empty array.', (done) => {
+    it('prints a object-nested, commented empty array.', () => {
 
         expect(p({ arr: { $comment: 'Nothin to see', $value: [] } })).to.equal([
             '{',
@@ -286,11 +243,9 @@ describe('Print.example()', () => {
             '    num: 1',
             '}'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an array-nested, commented empty array.', (done) => {
+    it('prints an array-nested, commented empty array.', () => {
 
         expect(p([{ $comment: 'Nothin to see', $value: [] }])).to.equal([
             '[',
@@ -304,11 +259,9 @@ describe('Print.example()', () => {
             `    1`,
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an object-nested non-empty array.', (done) => {
+    it('prints an object-nested non-empty array.', () => {
 
         expect(p({ arr: ['a', 'b'] })).to.equal([
             '{',
@@ -318,11 +271,9 @@ describe('Print.example()', () => {
             '    ]',
             '}'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an object-nested, commented non-empty array.', (done) => {
+    it('prints an object-nested, commented non-empty array.', () => {
 
         expect(p({ arr: { $comment: 'Somethin to see', $value: ['a', 'b'] } })).to.equal([
             '{',
@@ -332,11 +283,9 @@ describe('Print.example()', () => {
             '    ]',
             '}'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an array-nested non-empty array.', (done) => {
+    it('prints an array-nested non-empty array.', () => {
 
         expect(p([['a', 'b']])).to.equal([
             '[',
@@ -346,11 +295,9 @@ describe('Print.example()', () => {
             '    ]',
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an array-nested, commented non-empty array.', (done) => {
+    it('prints an array-nested, commented non-empty array.', () => {
 
         expect(p([{ $comment: 'Somethin to see', $value: ['a', 'b'] }])).to.equal([
             '[',
@@ -360,44 +307,36 @@ describe('Print.example()', () => {
             '    ]',
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an object-nested null.', (done) => {
+    it('prints an object-nested null.', () => {
 
         expect(p({ x: null })).to.equal([
             '{',
             '    x: null',
             '}'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an array-nested null.', (done) => {
+    it('prints an array-nested null.', () => {
 
         expect(p([null])).to.equal([
             '[',
             '    null',
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints quoted keys.', (done) => {
+    it('prints quoted keys.', () => {
 
         expect(p({ 'super-man': 'needs quotes' })).to.equal([
             '{',
             `    'super-man': 'needs quotes'`,
             '}'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints with any spacing.', (done) => {
+    it('prints with any spacing.', () => {
 
         expect(p([{ a: [1,2] }], '--')).to.equal([
             '[',
@@ -409,11 +348,9 @@ describe('Print.example()', () => {
             '--}',
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('deeply nests.', (done) => {
+    it('deeply nests.', () => {
 
         const ex = {
             $comment: 'w',
@@ -454,14 +391,12 @@ describe('Print.example()', () => {
             '    () => 6',
             ']'
         ].join(Os.EOL));
-
-        done();
     });
 });
 
 describe('Print.requires()', () => {
 
-    it('prints an example\'s requires.', (done) => {
+    it('prints an example\'s requires.', () => {
 
         const ex = { $requires: ['five-spot', 'ten-spot', './index', '../../two-levels-up', 'with/basename.js'] };
 
@@ -472,22 +407,16 @@ describe('Print.requires()', () => {
             'const TwoLevelsUp = require(\'../../two-levels-up\');',
             'const Basename = require(\'with/basename.js\');'
         ].join(Os.EOL));
-
-        done();
     });
 
-    it('prints an example without requires.', (done) => {
+    it('prints an example without requires.', () => {
 
         expect(Print.requires({})).to.equal('');
-
-        done();
     });
 
-    it('prints nothing when there is no example.', (done) => {
+    it('prints nothing when there is no example.', () => {
 
         expect(Print.requires(undefined)).to.equal('');
-
-        done();
     });
 });
 
@@ -495,7 +424,7 @@ describe('Print.markdownSection()', () => {
 
     const p = Print.markdownSection;
 
-    it('prints section in middle of markdown file.', (done) => {
+    it('prints section in middle of markdown file.', () => {
 
         const md = [
             '# H1',
@@ -520,11 +449,9 @@ describe('Print.markdownSection()', () => {
             'Header three second info',
             ''
         ].join('\n\n'));
-
-        done();
     });
 
-    it('prints section at end of markdown file.', (done) => {
+    it('prints section at end of markdown file.', () => {
 
         const md = [
             '# H1',
@@ -548,11 +475,9 @@ describe('Print.markdownSection()', () => {
             'Header three second info',
             ''
         ].join('\n\n'));
-
-        done();
     });
 
-    it('uses matchers in order, one at a time.', (done) => {
+    it('uses matchers in order, one at a time.', () => {
 
         const md = [
             '# H1',
@@ -573,11 +498,9 @@ describe('Print.markdownSection()', () => {
             'Header three second info',
             ''
         ].join('\n\n'));
-
-        done();
     });
 
-    it('returns null on no match.', (done) => {
+    it('returns null on no match.', () => {
 
         const md = [
             '# H1',
@@ -593,8 +516,6 @@ describe('Print.markdownSection()', () => {
         const matcher = (h) => h === 'nope';
 
         expect(StripAnsi(p(md, [matcher]))).to.equal(null);
-
-        done();
     });
 });
 
@@ -602,7 +523,7 @@ describe('Print.markdownListItem()', () => {
 
     const p = Print.markdownListItem;
 
-    it('prints list item.', (done) => {
+    it('prints list item.', () => {
 
         const md = [
             '# H1',
@@ -628,11 +549,9 @@ describe('Print.markdownListItem()', () => {
             '',
             ''
         ].join('\n'));
-
-        done();
     });
 
-    it('prints loose list item.', (done) => {
+    it('prints loose list item.', () => {
 
         const md = [
             '# H1',
@@ -661,11 +580,9 @@ describe('Print.markdownListItem()', () => {
             '',
             ''
         ].join('\n'));
-
-        done();
     });
 
-    it('prints nested list item.', (done) => {
+    it('prints nested list item.', () => {
 
         const md = [
             '# H1',
@@ -696,11 +613,9 @@ describe('Print.markdownListItem()', () => {
             '',
             ''
         ].join('\n'));
-
-        done();
     });
 
-    it('returns null when section is found but list item isn\'t.', (done) => {
+    it('returns null when section is found but list item isn\'t.', () => {
 
         const md = [
             '# H1',
@@ -714,11 +629,9 @@ describe('Print.markdownListItem()', () => {
         const lMatcher = (l) => l.indexOf('xxxx') === 0;
 
         expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal(null);
-
-        done();
     });
 
-    it('returns null when section isn\'t found.', (done) => {
+    it('returns null when section isn\'t found.', () => {
 
         const md = [
             '# H1',
@@ -732,11 +645,9 @@ describe('Print.markdownListItem()', () => {
         const lMatcher = (l) => l.indexOf('item') === 0;
 
         expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal(null);
-
-        done();
     });
 
-    it('returns null when section isn\'t found due to non-text content.', (done) => {
+    it('returns null when section isn\'t found due to non-text content.', () => {
 
         const md = [
             '# H1',
@@ -758,11 +669,9 @@ describe('Print.markdownListItem()', () => {
         const lMatcher = (l) => ~l.indexOf('```') || ~l.indexOf('code');
 
         expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal(null);
-
-        done();
     });
 
-    it('uses header matchers in order, one at a time.', (done) => {
+    it('uses header matchers in order, one at a time.', () => {
 
         const md = [
             '# H1',
@@ -790,7 +699,5 @@ describe('Print.markdownListItem()', () => {
             '',
             ''
         ].join('\n'));
-
-        done();
     });
 });
