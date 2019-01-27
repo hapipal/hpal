@@ -848,6 +848,22 @@ describe('hpal', () => {
                 expect(result.errorOutput).to.contain('Could not fetch the hapi docs. It seems you may be offline– ensure you have a connection then try again.');
             });
 
+            it('errors when fetching docs fails due to non-offline DNS error.', async (flags) => {
+
+                const mockWreck = mockWreckGet(Object.assign(new Error('Something bad happened during DNS lookup.'), {
+                    syscall: 'getaddrinfo',
+                    code: 'EAI_AGAIN'
+                }));
+
+                flags.onCleanup = mockWreck.cleanup;
+
+                const result = await RunUtil.cli(['docs', 'xxx']);
+
+                expect(result.err).to.be.instanceof(DisplayError);
+                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v16.x.x...');
+                expect(result.errorOutput).to.contain('Could not fetch the hapi docs: Something bad happened during DNS lookup.');
+            });
+
             it('errors when docs can\'t be fetched (boom error).', async (flags) => {
 
                 const mockWreck = mockWreckGet(Boom.badImplementation());
@@ -1215,6 +1231,12 @@ describe('hpal', () => {
                 expect(result2.err).to.be.instanceof(DisplayError);
                 expect(result2.output).to.equal('');
                 expect(result2.errorOutput).to.contain('Plugin y does not have the command "some-command".');
+
+                const result3 = await RunUtil.cli(['run', 'x:some-command'], 'run-command-no-func');
+
+                expect(result3.err).to.be.instanceof(DisplayError);
+                expect(result3.output).to.equal('');
+                expect(result3.errorOutput).to.contain('Plugin x does not have the command "some-command".');
             });
 
             it('errors when calling a command that is not exported properly.', async () => {
@@ -1277,13 +1299,13 @@ describe('hpal', () => {
                 expect(result1.output).to.contain('Complete!');
 
                 // Test args against flag collision
-                const result2 = await RunUtil.cli(['run', 'x:some-command', '--asFile', '-h'], 'run-command');
+                const result2 = await RunUtil.cli(['run', 'x:some-command', '--list', '--asFile', '-h'], 'run-command');
 
                 expect(result2.err).to.not.exist();
                 expect(result2.errorOutput).to.equal('');
                 expect(result2.options.cmd[0]).to.be.instanceof(Hapi.Server);
                 expect(result2.options.cmd[0].stopped).to.equal(true);
-                expect(result2.options.cmd[1]).to.equal(['--asFile', '-h']);
+                expect(result2.options.cmd[1]).to.equal(['--list', '--asFile', '-h']);
                 expect(result2.options.cmd[2]).to.equal(Path.resolve(__dirname, 'closet/run-command'));
                 expect(result2.options.cmd[3]).to.exist();
                 expect(result2.options.cmd[3].options).to.shallow.equal(result2.options);
