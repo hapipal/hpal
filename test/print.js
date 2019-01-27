@@ -82,6 +82,11 @@ describe('Print.example()', () => {
         expect(p({ $literal: 'invalid/js' })).to.equal('invalid/js');
     });
 
+    it('prints a stringified $literal.', () => {
+
+        expect(p({ $literal: { toString: () => 'invalid/js' } })).to.equal('invalid/js');
+    });
+
     it('prints a commented $literal.', () => {
 
         expect(p({ $literal: 'invalid/js', $comment: 'This wont parse' })).to.equal('invalid/js // This wont parse');
@@ -577,6 +582,42 @@ describe('Print.markdownListItem()', () => {
             '',
             '    * item',
             '    * but that\'s not all',
+            '',
+            ''
+        ].join('\n'));
+    });
+
+    it('prints loose, deep list item.', () => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '  - item',
+            '    and then some',
+            '',
+            '    - deep-item',
+            '',
+            '      but that\'s not all',
+            '',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info',
+            '## H2-2'
+        ].join('\n');
+
+        const hMatcher = (h) => h === 'H2-1';
+        const lMatcher = (l) => l.indexOf('item') === 0;
+
+        expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal([
+            '## H2-1',
+            '',
+            '    * item',
+            '    * and then some',
+            '        * deep-item',
+            '        * but that\'s not all',
             '',
             ''
         ].join('\n'));
