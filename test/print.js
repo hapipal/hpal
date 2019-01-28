@@ -581,7 +581,8 @@ describe('Print.markdownListItem()', () => {
             '## H2-1',
             '',
             '    * item',
-            '    * but that\'s not all',
+            '      ',
+            '      but that\'s not all',
             '',
             ''
         ].join('\n'));
@@ -615,9 +616,12 @@ describe('Print.markdownListItem()', () => {
             '## H2-1',
             '',
             '    * item',
-            '    * and then some',
+            '      and then some',
+            '      ',
+            '      ',
             '        * deep-item',
-            '        * but that\'s not all',
+            '            ',
+            '            but that\'s not all',
             '',
             ''
         ].join('\n'));
@@ -649,7 +653,10 @@ describe('Print.markdownListItem()', () => {
             '## H2-1',
             '',
             '    * item',
+            '      ',
+            '      ',
             '        * sub 1',
+            '      ',
             '        * sub 2',
             '',
             ''
