@@ -9,25 +9,21 @@ exports.deployment = async () => {
     const register = (srv, options) => {
 
         srv.expose('commands', {
-            someCommand: (cmdSrv, args, root, ctx) => {
+            someCommand: (rootServer, args, root, ctx) => {
 
-                return Promise.resolve().then(() => {
+                ctx.options.cmd = [rootServer, args, root, ctx];
 
-                    ctx.options.cmd = [cmdSrv, args, root, ctx];
+                const stop = rootServer.stop;
+                rootServer.stop = async () => {
 
-                    const stop = cmdSrv.stop;
-                    cmdSrv.stop = () => {
+                    rootServer.stop = stop;
 
-                        cmdSrv.stop = stop;
+                    await rootServer.stop();
 
-                        return cmdSrv.stop().then(() => {
+                    rootServer.stopped = true;
+                };
 
-                            cmdSrv.stopped = true;
-                        });
-                    };
-
-                    throw new ctx.DisplayError('Something happened');
-                });
+                throw new ctx.DisplayError('Something happened');
             }
         });
     };

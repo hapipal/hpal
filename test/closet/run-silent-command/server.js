@@ -10,27 +10,21 @@ exports.deployment = async () => {
 
         srv.expose('commands', {
             someCommand: {
-
                 // Make hpal silent before and after the command is run
                 noDefaultOutput: true,
+                command: (rootServer, args, root, ctx) => {
 
-                command: (cmdSrv, args, root, ctx) => {
+                    ctx.options.cmd = [rootServer, args, root, ctx];
 
-                    return Promise.resolve().then(() => {
+                    const stop = rootServer.stop;
+                    rootServer.stop = async () => {
 
-                        ctx.options.cmd = [cmdSrv, args, root, ctx];
+                        rootServer.stop = stop;
 
-                        const stop = cmdSrv.stop;
-                        cmdSrv.stop = () => {
+                        await rootServer.stop();
 
-                            cmdSrv.stop = stop;
-
-                            return cmdSrv.stop().then(() => {
-
-                                cmdSrv.stopped = true;
-                            });
-                        };
-                    });
+                        rootServer.stopped = true;
+                    };
                 }
             }
         });

@@ -112,6 +112,16 @@ describe('hpal', () => {
 
         describe('make command', () => {
 
+            const makeFileCleanup = () => ({
+                files: [],
+                async cleanup() {
+
+                    return await Promise.all(this.files.map(
+                        async (file) => await rimraf(file)
+                    ));
+                }
+            });
+
             it('errors when there\'s no .hc.js file found.', async () => {
 
                 const result = await RunUtil.cli(['make', 'route'], 'no-hc-file');
@@ -176,7 +186,11 @@ describe('hpal', () => {
                 expect(result2.errorOutput.match(/,/g)).to.have.length(1);
             });
 
-            it('succeeds when finding a .hc.js file is ambiguous in the project, but not to the cwd (multi-plugin project).', async () => {
+            it('succeeds when finding a .hc.js file is ambiguous in the project, but not to the cwd (multi-plugin project).', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('ambiguous-hc-file/project-a/routes');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
 
                 const result = await RunUtil.cli(['make', 'route'], 'ambiguous-hc-file/project-a');
 
@@ -187,11 +201,13 @@ describe('hpal', () => {
                 const contents = await read('ambiguous-hc-file/project-a/routes/index.js');
 
                 expect(contents).to.startWith('\'use strict\';');
-
-                return rimraf('ambiguous-hc-file/project-a/routes'); // TODO
             });
 
-            it('succeeds when finding a .hc.js file from a cwd deep in the project.', async () => {
+            it('succeeds when finding a .hc.js file from a cwd deep in the project.', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('non-ambiguous-hc-file-cwd/project-b/routes');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
 
                 const result = await RunUtil.cli(['make', 'route'], 'non-ambiguous-hc-file-cwd/project-a');
 
@@ -202,8 +218,6 @@ describe('hpal', () => {
                 const contents = await read('non-ambiguous-hc-file-cwd/project-b/routes/index.js');
 
                 expect(contents).to.startWith('\'use strict\';');
-
-                return rimraf('non-ambiguous-hc-file-cwd/project-b/routes');
             });
 
             it('errors when haute-couture cannot be found.', async () => {
@@ -292,7 +306,11 @@ describe('hpal', () => {
                 expect(err.output).to.equal('');
             });
 
-            it('creates a list item in a directory (default).', async () => {
+            it('creates a list item in a directory (default).', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('list-as-dir/lib/routes');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
 
                 const check = async (promise) => {
 
@@ -304,7 +322,7 @@ describe('hpal', () => {
                     const contents = await read('list-as-dir/lib/routes/index.js');
                     expect(contents).to.startWith('\'use strict\';');
 
-                    return rimraf('list-as-dir/lib/routes'); // TODO
+                    await rimraf('list-as-dir/lib/routes');
                 };
 
                 await check(RunUtil.cli(['make', 'routes'], 'list-as-dir'));
@@ -312,7 +330,11 @@ describe('hpal', () => {
                 await check(RunUtil.cli(['make', 'routes', '--asDir'], 'list-as-dir'));
             });
 
-            it('creates a list item as a file.', async () => {
+            it('creates a list item as a file.', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('list-as-file/lib/routes.js');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
 
                 const check = async (promise) => {
 
@@ -324,14 +346,18 @@ describe('hpal', () => {
                     const contents = await read('list-as-file/lib/routes.js');
                     expect(contents).to.startWith('\'use strict\';');
 
-                    return rimraf('list-as-file/lib/routes.js'); // TODO
+                    await rimraf('list-as-file/lib/routes.js');
                 };
 
                 await check(RunUtil.cli(['make', 'routes', '-f'], 'list-as-file'));
                 await check(RunUtil.cli(['make', 'routes', '--asFile'], 'list-as-file'));
             });
 
-            it('creates a single item in a directory.', async () => {
+            it('creates a single item in a directory.', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('single-as-dir/lib/bind');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
 
                 const check = async (promise) => {
 
@@ -343,14 +369,18 @@ describe('hpal', () => {
                     const contents = await read('single-as-dir/lib/bind/index.js');
                     expect(contents).to.startWith('\'use strict\';');
 
-                    return rimraf('single-as-dir/lib/bind'); // TODO
+                    await rimraf('single-as-dir/lib/bind');
                 };
 
                 await check(RunUtil.cli(['make', 'bind', '-d'], 'single-as-dir'));
                 await check(RunUtil.cli(['make', 'bind', '--asDir'], 'single-as-dir'));
             });
 
-            it('creates a single item as a file (default).', async () => {
+            it('creates a single item as a file (default).', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('single-as-file/lib/bind.js');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
 
                 const check = async (promise) => {
 
@@ -362,7 +392,7 @@ describe('hpal', () => {
                     const contents = await read('single-as-file/lib/bind.js');
                     expect(contents).to.startWith('\'use strict\';');
 
-                    return rimraf('single-as-file/lib/bind.js'); // TODO
+                    await rimraf('single-as-file/lib/bind.js');
                 };
 
                 await check(RunUtil.cli(['make', 'bind'], 'single-as-file'));
@@ -370,7 +400,11 @@ describe('hpal', () => {
                 await check(RunUtil.cli(['make', 'bind', '--asFile'], 'single-as-file'));
             });
 
-            it('writes file exporting {} when example and signature are absent.', async () => {
+            it('writes file exporting {} when example and signature are absent.', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('no-example-or-signature/lib/x.js');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
 
                 const check = async (promise) => {
 
@@ -387,13 +421,17 @@ describe('hpal', () => {
                         ''
                     ].join(Os.EOL));
 
-                    return rimraf('no-example-or-signature/lib/x.js');
+                    await rimraf('no-example-or-signature/lib/x.js');
                 };
 
                 await check(RunUtil.cli(['make', 'x'], 'no-example-or-signature'));
             });
 
-            it('writes file with export built from signature when example is absent.', async () => {
+            it('writes file with export built from signature when example is absent.', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('no-example-with-signature/lib/x.js');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
 
                 const check = async (promise) => {
 
@@ -414,13 +452,17 @@ describe('hpal', () => {
                         ''
                     ].join(Os.EOL));
 
-                    return rimraf('no-example-with-signature/lib/x.js');
+                    await rimraf('no-example-with-signature/lib/x.js');
                 };
 
                 await check(RunUtil.cli(['make', 'x'], 'no-example-with-signature'));
             });
 
-            it('writes file with export built from example when present.', async () => {
+            it('writes file with export built from example when present.', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('with-example-and-signature/lib/x.js');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
 
                 const check = async (promise) => {
 
@@ -441,13 +483,17 @@ describe('hpal', () => {
                         ''
                     ].join(Os.EOL));
 
-                    return rimraf('with-example-and-signature/lib/x.js');
+                    await rimraf('with-example-and-signature/lib/x.js');
                 };
 
                 await check(RunUtil.cli(['make', 'x'], 'with-example-and-signature'));
             });
 
-            it('writes file from example that has some requires.', async () => {
+            it('writes file from example that has some requires.', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('with-example-and-requires/lib/x.js');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
 
                 const check = async (promise) => {
 
@@ -467,13 +513,18 @@ describe('hpal', () => {
                         ''
                     ].join(Os.EOL));
 
-                    return rimraf('with-example-and-requires/lib/x.js');
+                    await rimraf('with-example-and-requires/lib/x.js');
                 };
 
                 await check(RunUtil.cli(['make', 'x'], 'with-example-and-requires'));
             });
 
-            it('wraps listed examples in an array.', async () => {
+            it('wraps listed examples in an array.', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('listed-example/lib/x/index.js');
+                fileCleanup.files.push('listed-example/lib/x/y.js');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
 
                 const checkUnnamed = async (promise) => {
 
@@ -493,8 +544,6 @@ describe('hpal', () => {
                         '];',
                         ''
                     ].join(Os.EOL));
-
-                    return rimraf('listed-example/lib/x/index.js');
                 };
 
                 const checkNamed = async (promise) => {
@@ -513,8 +562,6 @@ describe('hpal', () => {
                         '};',
                         ''
                     ].join(Os.EOL));
-
-                    return rimraf('listed-example/lib/x/y.js');
                 };
 
                 await checkUnnamed(RunUtil.cli(['make', 'x'], 'listed-example'));
@@ -551,6 +598,16 @@ describe('hpal', () => {
                 });
             };
 
+            const returnError = async (promise) => {
+
+                try {
+                    return await promise;
+                }
+                catch (err) {
+                    return err;
+                }
+            };
+
             it('creates a new pal project.', { timeout: 5000 }, async (flags) => {
 
                 flags.onCleanup = async () => await rimraf('new/my-project');
@@ -572,7 +629,7 @@ describe('hpal', () => {
                     exec('git remote', 'new/my-project'),
                     exec('git tag', 'new/my-project'),
                     exec('git ls-files -m', 'new/my-project'),
-                    exec('git log', 'new/my-project').catch((err) => err) // TODO
+                    returnError(exec('git log', 'new/my-project'))
                 ]);
 
                 const pkg = JSON.parse(results[0]);
@@ -621,7 +678,7 @@ describe('hpal', () => {
                     exec('git remote', 'new/bail-on-npm-init'),
                     exec('git tag', 'new/bail-on-npm-init'),
                     exec('git ls-files -m', 'new/bail-on-npm-init'),
-                    exec('git log', 'new/bail-on-npm-init').catch((err) => err) // TODO
+                    returnError(exec('git log', 'new/bail-on-npm-init'))
                 ]);
 
                 const pkg = JSON.parse(results[0]);

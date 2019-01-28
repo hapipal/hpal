@@ -72,10 +72,15 @@ exports.cli = (argv, cwd, colors) => {
         colors: !!colors
     };
 
-    const cli = Promise.resolve()
-        .then(() => Hpal.start(options))
-        .then(() => ({ err: null, output, errorOutput, options }))
-        .catch((err) => {
+    const cli = (async () => {
+
+        try {
+
+            await Hpal.start(options);
+
+            return { err: null, output, errorOutput, options };
+        }
+        catch (err) {
 
             output = output.trim(); // Ignore leading and trailing whitespace for testing purposes
 
@@ -86,7 +91,8 @@ exports.cli = (argv, cwd, colors) => {
             }
 
             return { err, output, errorOutput: err.message, options };
-        });
+        }
+    })();
 
     return Object.assign(cli, { options });
 };
