@@ -2,11 +2,11 @@
 
 const Hapi = require('hapi');
 
-exports.deployment = () => {
+exports.deployment = async () => {
 
-    const server = new Hapi.Server();
+    const server = Hapi.server();
 
-    const plugin = (srv, options, next) => {
+    const register = (srv, options) => {
 
         srv.expose('commands', {
             someCommand: (cmdSrv, args, root, ctx) => {
@@ -30,13 +30,14 @@ exports.deployment = () => {
                 });
             }
         });
-
-        return next();
     };
 
-    plugin.attributes = {
-        name: 'x'
+    const plugin = {
+        name: 'x',
+        register
     };
 
-    return server.register(plugin).then(() => server);
+    await server.register(plugin);
+
+    return server;
 };

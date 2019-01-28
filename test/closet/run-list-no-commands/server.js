@@ -2,4 +2,4 @@
 
 const Hapi = require('hapi');
 
-exports.deployment = () => new Hapi.Server();
+exports.deployment = () => Hapi.server();

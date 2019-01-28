@@ -2,11 +2,11 @@
 
 const Hapi = require('hapi');
 
-exports.deployment = () => {
+exports.deployment = async () => {
 
-    const server = new Hapi.Server();
+    const server = Hapi.server();
 
-    const pluginX = (srv, options, next) => {
+    const registerX = (srv, options) => {
 
         srv.expose('commands', {
             default: () => null,
@@ -16,17 +16,16 @@ exports.deployment = () => {
                 command: () => null
             }
         });
-
-        return next();
     };
 
-    pluginX.attributes = {
-        name: 'x'
+    const pluginX = {
+        name: 'x',
+        register: registerX
     };
 
     // hpal-prefixed plugin name
 
-    const pluginY = (srv, options, next) => {
+    const registerY = (srv, options) => {
 
         srv.expose('commands', {
             default: () => null,
@@ -36,26 +35,26 @@ exports.deployment = () => {
                 command: () => null
             }
         });
-
-        return next();
     };
 
-    pluginY.attributes = {
-        name: 'hpal-y'
+    const pluginY = {
+        name: 'hpal-y',
+        register: registerY
     };
 
     // Exposes something but no commands
 
-    const pluginZ = (srv, options, next) => {
+    const registerZ = (srv, options) => {
 
         srv.expose('irrelevant', null);
-
-        return next();
     };
 
-    pluginZ.attributes = {
-        name: 'z'
+    const pluginZ = {
+        name: 'z',
+        register: registerZ
     };
 
-    return server.register([pluginX, pluginY, pluginZ]).then(() => server);
+    await server.register([pluginX, pluginY, pluginZ]);
+
+    return server;
 };
