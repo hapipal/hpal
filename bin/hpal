@@ -1,32 +1,17 @@
 #!/usr/bin/env node
+'use strict';
 
-const Hpal = require('..');
-const DisplayError = require('../lib/display-error');
+const Path = require('path');
+const Somever = require('somever');
+const V8FlagsFilter = require('bin-v8-flags-filter');
 
-(async () => {
+const REPL_AWAIT_FLAG = '--experimental-repl-await';
 
-    try {
+if ((process.allowedNodeEnvironmentFlags && process.allowedNodeEnvironmentFlags.has(REPL_AWAIT_FLAG)) ||
+    (!process.allowedNodeEnvironmentFlags && Somever.match(process.version.slice(1), '>=10'))) {
+    process.argv.push(REPL_AWAIT_FLAG);
+}
 
-        await Hpal.start({
-            argv: process.argv,
-            in: process.stdin,
-            out: process.stdout,
-            err: process.stderr,
-            cwd: process.cwd(),
-            colors: !!require('supports-color').stdout
-        });
-
-        process.exit(0)
-    }
-    catch (err) {
-
-        if (err instanceof DisplayError) {
-            console.error(err.message);
-        }
-        else {
-            console.error(err.stack);
-        }
-
-        process.exit(1);
-    }
-})();
+V8FlagsFilter(Path.join(__dirname, '_hpal'), {
+    ignore: ['debug']
+});

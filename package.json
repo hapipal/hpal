@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/hapipal/hpal#readme",
   "dependencies": {
+    "bin-v8-flags-filter": ">=1.2.0 <2",
     "bossy": "4.x.x",
     "bounce": "1.x.x",
     "glob": "7.x.x",
@@ -43,7 +44,7 @@
     "mkdirp": "0.5.x",
     "pkg-dir": "3.x.x",
     "pluralize": "7.x.x",
-    "semver": "5.x.x",
+    "somever": "2.x.x",
     "supports-color": "6.x.x",
     "wreck": "14.x.x"
   },

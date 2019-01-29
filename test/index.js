@@ -11,6 +11,7 @@ const Lab = require('lab');
 const Code = require('code');
 const Hapi = require('hapi');
 const Rimraf = require('rimraf');
+const Somever = require('somever');
 const StripAnsi = require('strip-ansi');
 const Boom = require('boom');
 const Wreck = require('wreck');
@@ -1266,6 +1267,11 @@ describe('hpal', () => {
                 expect(result.errorOutput).to.contain(`No server found! To run commands the current project must export { deployment: async () => server } from ${root}/server.`);
             });
 
+            it('errors hard when a bad require happens in the server.', async () => {
+
+                await expect(RunUtil.cli(['run', 'x'], 'run-bad-require')).to.reject('Cannot find module \'does-not-exist\'');
+            });
+
             it('errors when server does not export { deployment }.', async () => {
 
                 const result = await RunUtil.cli(['run', 'x'], 'run-bad-server');
@@ -1432,6 +1438,22 @@ describe('hpal', () => {
 
             expect(result.code).to.equal(0);
             expect(result.output).to.contain('Usage: hpal <command> <options>');
+            expect(result.errorOutput).to.equal('');
+        });
+
+        it('passes through node flags.', async () => {
+
+            const result = await RunUtil.bin(['run', 'x', '--use_strict'], `${__dirname}/closet/run-echo-exec-argv`);
+
+            expect(result.code).to.equal(0);
+
+            if (Somever.match(process.version.slice(1), '>=10')) {
+                expect(result.output).to.contain('["--experimental-repl-await","--use_strict"]');
+            }
+            else {
+                expect(result.output).to.contain('["--use_strict"]');
+            }
+
             expect(result.errorOutput).to.equal('');
         });
     });

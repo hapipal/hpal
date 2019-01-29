@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+'use strict';
+
+const Hpal = require('..');
+const DisplayError = require('../lib/display-error');
+
+(async () => {
+
+    try {
+
+        await Hpal.start({
+            argv: process.argv,
+            in: process.stdin,
+            out: process.stdout,
+            err: process.stderr,
+            cwd: process.cwd(),
+            colors: !!require('supports-color').stdout
+        });
+
+        process.exit(0)
+    }
+    catch (err) {
+
+        if (err instanceof DisplayError) {
+            console.error(err.message);
+        }
+        else {
+            console.error(err.stack);
+        }
+
+        process.exit(1);
+    }
+})();
