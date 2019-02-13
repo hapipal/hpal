@@ -3,5 +3,5 @@
 module.exports = [{
     method: 'x',
     place: 'x',
-    noUseStrictHeader: true,
+    exampleUseStrict: false
 }];
