@@ -615,6 +615,27 @@ describe('hpal', () => {
                     .then(() => RunUtil.cli(['make', 'x', 'y'], 'listed-example'))
                     .then(checkNamed);
             });
+
+            it('skips outputting the use strict header.', () => {
+
+                const check = (result) => {
+
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/x.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    return read('skip-use-strict-header/lib/x.js')
+                        .then((contents) => {
+
+                            expect(contents).not.to.startWith('\'use strict\';');
+
+                            return rimraf('skip-use-strict-header/lib/x.js');
+                        });
+                };
+
+                return RunUtil.cli(['make', 'x'], 'skip-use-strict-header')
+                    .then(check);
+            });
         });
 
         describe('new command', () => {
