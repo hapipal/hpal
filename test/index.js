@@ -1586,6 +1586,28 @@ describe('hpal', () => {
                         expect(result.options.cmd).to.equal('ran');
                     });
             });
+
+            it('runs a kebab-cased command.', () => {
+
+                return RunUtil.cli(['run', 'x:kebab-cased-command'], 'run-kebab-cased-command')
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.errorOutput).to.equal('');
+                        expect(result.options.cmd).to.equal('ran');
+                    });
+            });
+
+            it('runs a kebab-cased, hpal-prefixed command.', () => {
+
+                return RunUtil.cli(['run', 'x:kebab-cased-command'], 'run-kebab-cased-prefixed-command')
+                    .then((result) => {
+
+                        expect(result.err).to.not.exist();
+                        expect(result.errorOutput).to.equal('');
+                        expect(result.options.cmd).to.equal('ran');
+                    });
+            });
         });
     });
 
