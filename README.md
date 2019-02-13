@@ -74,6 +74,8 @@ Relies on the presence of a [`.hc.js`](https://github.com/hapipal/haute-couture/
 
 The `--asDir` and `--asFile` flags can be used to determine where the file is written.  For a list item like `routes`, specifying `--asFile` (`hpal make route --asFile`) will create `routes.js` rather than `routes/index.js`.  For a single item like `auth/default`, specifying `--asDir` (`hpal make auth/default --asDir`) will create `auth/default/index.js` rather than `auth/default.js`.  When an optional `<item-name>` is specified then that will always place a file in the relevant directory with the name `<item-name>.js`.  For example, `hpal make route create-user` will write the file `routes/create-user.js`.
 
+In order to omit the statement to enable [strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode) to the top of the generated files (per the hapi style guide), you may specify `exampleUseStrict` as `false` inside the `meta` property of the relevant haute-couture manifest items.
+
 #### `hpal docs`
 > ```
 > hpal docs[:<package-name>] [--ver x.y.z|ref] <docs-section> [<config-item>]
