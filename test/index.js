@@ -17,6 +17,7 @@ const Boom = require('boom');
 const Wreck = require('wreck');
 const Glob = require('glob');
 const RunUtil = require('./run-util');
+const Helpers = require('../lib/helpers');
 const DisplayError = require('../lib/display-error');
 const Package = require('../package.json');
 
@@ -401,6 +402,45 @@ describe('hpal', () => {
                 await check(RunUtil.cli(['make', 'bind', '--asFile'], 'single-as-file'));
             });
 
+            it('creates an item when haute item `meta` property is absent.', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('single-as-file/lib/bind.js');
+
+                const getManifest = Helpers.getManifest;
+
+                flags.onCleanup = async () => {
+
+                    Helpers.getManifest = getManifest;
+                    await fileCleanup.cleanup();
+                };
+
+                Helpers.getManifest = async (...args) => {
+
+                    const manifest = await getManifest(...args);
+
+                    manifest.forEach((item) => {
+
+                        delete item.meta;
+                    });
+
+                    return manifest;
+                };
+
+                const check = async (promise) => {
+
+                    const result = await promise;
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/bind.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    const contents = await read('single-as-file/lib/bind.js');
+                    expect(contents).to.startWith('\'use strict\';');
+                };
+
+                await check(RunUtil.cli(['make', 'bind'], 'single-as-file'));
+            });
+
             it('writes file exporting {} when example and signature are absent.', async (flags) => {
 
                 const fileCleanup = makeFileCleanup();
@@ -567,6 +607,26 @@ describe('hpal', () => {
 
                 await checkUnnamed(RunUtil.cli(['make', 'x'], 'listed-example'));
                 await checkNamed(RunUtil.cli(['make', 'x', 'y'], 'listed-example'));
+            });
+
+            it('skips outputting the use strict header.', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('skip-use-strict-header/lib/x.js');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
+
+                const check = async (promise) => {
+
+                    const result = await promise;
+                    expect(result.err).to.not.exist();
+                    expect(result.output).to.contain('Wrote lib/x.js');
+                    expect(result.errorOutput).to.equal('');
+
+                    const contents = await read('skip-use-strict-header/lib/x.js');
+                    expect(contents).not.to.startWith('\'use strict\';');
+                };
+
+                await check(RunUtil.cli(['make', 'x'], 'skip-use-strict-header'));
             });
         });
 
@@ -1422,6 +1482,24 @@ describe('hpal', () => {
             it('runs an hpal-prefixed command.', async () => {
 
                 const result = await RunUtil.cli(['run', 'x:some-command'], 'run-prefixed-command');
+
+                expect(result.err).to.not.exist();
+                expect(result.errorOutput).to.equal('');
+                expect(result.options.cmd).to.equal('ran');
+            });
+
+            it('runs a kebab-cased command.', async () => {
+
+                const result = await RunUtil.cli(['run', 'x:kebab-cased-command'], 'run-kebab-cased-command');
+
+                expect(result.err).to.not.exist();
+                expect(result.errorOutput).to.equal('');
+                expect(result.options.cmd).to.equal('ran');
+            });
+
+            it('runs a kebab-cased, hpal-prefixed command.', async () => {
+
+                const result = await RunUtil.cli(['run', 'x:kebab-cased-command'], 'run-kebab-cased-prefixed-command');
 
                 expect(result.err).to.not.exist();
                 expect(result.errorOutput).to.equal('');
