@@ -65,6 +65,7 @@ exports.cli = (argv, cwd, colors) => {
 
     const options = {
         argv,
+        env: {},
         cwd,
         in: stdin,
         out: stdout,

@@ -10,6 +10,7 @@ const DisplayError = require('../lib/display-error');
 
         await Hpal.start({
             argv: process.argv,
+            env: process.env,
             in: process.stdin,
             out: process.stdout,
             err: process.stderr,
