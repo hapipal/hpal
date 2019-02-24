@@ -13,15 +13,17 @@ Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
   - :honeybee: run custom commands defined by your server's hapi plugins
 
 ## Installation
-```
-npm install -g hpal
-```
+> Note, the hpal CLI is designed for use with **hapi v17+** and **nodejs v8+**.
 
-You may also install hpal locally within a project as a dev dependency and/or invoke it using [npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b) (which you probably already have installed, as it comes with npm v5.2+).
+We recommend installing the hpal CLI as a dev dependency within your project, then invoking it using [npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b).
+```
+npm install --save-dev hpal
+npx hpal --help
+```
 
 If you want to try the hpal CLI right now, just copy and paste this right into your terminal!
 ```
-npx hpal docs --ver 17.2.0 h.response
+npx hpal docs --ver 18.1.0 h.response
 ```
 
 ## Usage
