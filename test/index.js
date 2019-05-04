@@ -7,14 +7,14 @@ const Os = require('os');
 const Path = require('path');
 const Util = require('util');
 const ChildProcess = require('child_process');
-const Lab = require('lab');
-const Code = require('code');
-const Hapi = require('hapi');
+const Lab = require('@hapi/lab');
+const Code = require('@hapi/code');
+const Hapi = require('@hapi/hapi');
 const Rimraf = require('rimraf');
-const Somever = require('somever');
+const Somever = require('@hapi/somever');
 const StripAnsi = require('strip-ansi');
-const Boom = require('boom');
-const Wreck = require('wreck');
+const Boom = require('@hapi/boom');
+const Wreck = require('@hapi/wreck');
 const Glob = require('glob');
 const RunUtil = require('./run-util');
 const Helpers = require('../lib/helpers');
@@ -1043,6 +1043,70 @@ describe('hpal', () => {
 
                 expect(result.err).to.be.instanceof(DisplayError);
                 expect(result.output).to.equal('Searching docs from hapijs/hapi @ v6.6.6...');
+                expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+            });
+
+            it('defaults to fetch docs for the version of the scoped package used in the current project.', async (flags) => {
+
+                const mockWreck = mockWreckGet(null);
+                flags.onCleanup = mockWreck.cleanup;
+
+                const result = await RunUtil.cli(['docs', 'xxx'], 'specific-hapi-scoped-version');
+
+                expect(mockWreck.calls).to.equal([
+                    'https://raw.githubusercontent.com/hapijs/hapi/v6.6.6/API.md'
+                ]);
+
+                expect(result.err).to.be.instanceof(DisplayError);
+                expect(result.output).to.equal('Searching docs from hapijs/hapi @ v6.6.6...');
+                expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+            });
+
+            it('defaults to fetch docs for the version of the specified scoped package used in the current project.', async (flags) => {
+
+                const mockWreck = mockWreckGet(null);
+                flags.onCleanup = mockWreck.cleanup;
+
+                const result = await RunUtil.cli(['docs:joi', 'xxx'], 'specific-joi-scoped-version');
+
+                expect(mockWreck.calls).to.equal([
+                    'https://raw.githubusercontent.com/hapijs/joi/v6.6.6/API.md'
+                ]);
+
+                expect(result.err).to.be.instanceof(DisplayError);
+                expect(result.output).to.equal('Searching docs from hapijs/joi @ v6.6.6...');
+                expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+            });
+
+            it('defaults to fetch docs for the version of the specified package used in the current project.', async (flags) => {
+
+                const mockWreck = mockWreckGet(null);
+                flags.onCleanup = mockWreck.cleanup;
+
+                const result = await RunUtil.cli(['docs:joi', 'xxx'], 'specific-joi-version');
+
+                expect(mockWreck.calls).to.equal([
+                    'https://raw.githubusercontent.com/hapijs/joi/v6.6.6/API.md'
+                ]);
+
+                expect(result.err).to.be.instanceof(DisplayError);
+                expect(result.output).to.equal('Searching docs from hapijs/joi @ v6.6.6...');
+                expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+            });
+
+            it('defaults to fetch docs for the version of the specified pal package used in the current project.', async (flags) => {
+
+                const mockWreck = mockWreckGet(null);
+                flags.onCleanup = mockWreck.cleanup;
+
+                const result = await RunUtil.cli(['docs:schmervice', 'xxx'], 'specific-schmervice-version');
+
+                expect(mockWreck.calls).to.equal([
+                    'https://raw.githubusercontent.com/hapipal/schmervice/v6.6.6/API.md'
+                ]);
+
+                expect(result.err).to.be.instanceof(DisplayError);
+                expect(result.output).to.equal('Searching docs from hapipal/schmervice @ v6.6.6...');
                 expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
             });
 

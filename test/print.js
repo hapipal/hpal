@@ -5,8 +5,8 @@
 // Load modules
 
 const Os = require('os');
-const Lab = require('lab');
-const Code = require('code');
+const Lab = require('@hapi/lab');
+const Code = require('@hapi/code');
 const StripAnsi = require('strip-ansi');
 const Print = require('../lib/print');
 
