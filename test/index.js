@@ -1393,7 +1393,7 @@ describe('hpal', () => {
 
             it('errors hard when a bad require happens in the server.', async () => {
 
-                await expect(RunUtil.cli(['run', 'x'], 'run-bad-require')).to.reject('Cannot find module \'does-not-exist\'');
+                await expect(RunUtil.cli(['run', 'x'], 'run-bad-require')).to.reject(/Cannot find module 'does-not-exist'/);
             });
 
             it('errors when server does not export { deployment }.', async () => {

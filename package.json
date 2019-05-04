@@ -34,27 +34,27 @@
   },
   "homepage": "https://github.com/hapipal/hpal#readme",
   "dependencies": {
-    "bin-v8-flags-filter": ">=1.2.0 <2",
     "@hapi/bossy": "4.x.x",
     "@hapi/bounce": "1.x.x",
+    "@hapi/somever": "2.x.x",
+    "@hapi/wreck": "15.x.x",
+    "bin-v8-flags-filter": ">=1.2.0 <2",
     "glob": "7.x.x",
     "json-stable-stringify": "1.x.x",
     "marked": "0.6.x",
     "marked-terminal": "3.x.x",
     "mkdirp": "0.5.x",
-    "pkg-dir": "3.x.x",
+    "pkg-dir": "4.x.x",
     "pluralize": "7.x.x",
-    "@hapi/somever": "2.x.x",
-    "supports-color": "6.x.x",
-    "@hapi/wreck": "15.x.x"
+    "supports-color": "6.x.x"
   },
   "devDependencies": {
     "@hapi/boom": "7.x.x",
     "@hapi/code": "5.x.x",
-    "coveralls": "3.x.x",
     "@hapi/hapi": "18.x.x",
-    "haute-couture": "3.x.x",
     "@hapi/lab": "18.x.x",
+    "coveralls": "3.x.x",
+    "haute-couture": "3.x.x",
     "rimraf": "2.x.x",
     "strip-ansi": "5.x.x"
   }
