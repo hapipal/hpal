@@ -693,7 +693,8 @@ describe('hpal', () => {
                     returnError(exec('git log', 'new/my-project'))
                 ]);
 
-                const pkg = JSON.parse(results[0]);
+                const pkgAsString = results[0];
+                const pkg = JSON.parse(pkgAsString);
                 const lib = results[1];
                 const test = results[2];
                 const remotes = results[3][0].split('\n');
@@ -705,6 +706,7 @@ describe('hpal', () => {
                 expect(pkg.version).to.equal('1.0.0');
                 expect(pkg.dependencies).to.exist();
                 expect(pkg.devDependencies).to.exist();
+                expect(pkgAsString.endsWith('\n')).to.equal(true);
                 expect(lib).to.exist();
                 expect(test).to.exist();
                 expect(remotes).to.contain('pal');
@@ -742,7 +744,8 @@ describe('hpal', () => {
                     returnError(exec('git log', 'new/bail-on-npm-init'))
                 ]);
 
-                const pkg = JSON.parse(results[0]);
+                const pkgAsString = results[0];
+                const pkg = JSON.parse(pkgAsString);
                 const lib = results[1];
                 const test = results[2];
                 const remotes = results[3][0].split('\n');
@@ -754,6 +757,7 @@ describe('hpal', () => {
                 expect(pkg.version).to.not.exist();
                 expect(pkg.dependencies).to.exist();
                 expect(pkg.devDependencies).to.exist();
+                expect(pkgAsString.endsWith('\n')).to.equal(true);
                 expect(lib).to.exist();
                 expect(test).to.exist();
                 expect(remotes).to.contain('pal');
