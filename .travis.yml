@@ -3,6 +3,17 @@ language: node_js
 node_js:
   - "8"
   - "10"
+  - "12"
   - "node"
+
+os:
+  - "linux"
+  - "windows"
+
+before_script: |
+  if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
+    git config core.symlinks true
+    git reset --hard
+  fi
 
 after_script: "npm run coveralls"
