@@ -52,6 +52,7 @@
     "@hapi/boom": "7.x.x",
     "@hapi/code": "5.x.x",
     "@hapi/hapi": "18.x.x",
+    "@hapi/hapi-19": "npm:@hapi/hapi@19",
     "@hapi/lab": "19.x.x",
     "coveralls": "3.x.x",
     "haute-couture": "3.x.x",

@@ -9,7 +9,6 @@ const Util = require('util');
 const ChildProcess = require('child_process');
 const Lab = require('@hapi/lab');
 const Code = require('@hapi/code');
-const Hapi = require('@hapi/hapi');
 const Rimraf = require('rimraf');
 const Somever = require('@hapi/somever');
 const StripAnsi = require('strip-ansi');
@@ -20,6 +19,8 @@ const RunUtil = require('./run-util');
 const Helpers = require('../lib/helpers');
 const DisplayError = require('../lib/display-error');
 const Package = require('../package.json');
+
+const Hapi = Somever.match('>=12', process.version) ? require('@hapi/hapi-19') : require('@hapi/hapi');
 
 // Test shortcuts
 
