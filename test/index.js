@@ -682,9 +682,10 @@ describe('hpal', () => {
 
                 flags.onCleanup = async () => await rimraf('new/my-project');
 
-                const cli = RunUtil.cli(['new', 'my-project'], 'new');
+                const projectName = 'my-project';
+                const cli = RunUtil.cli(['new', projectName], 'new');
 
-                answerNpmInit(cli, 'chosen-name');
+                answerNpmInit(cli, projectName);
 
                 const result = await cli;
 
@@ -694,6 +695,7 @@ describe('hpal', () => {
 
                 const results = await Promise.all([
                     read('new/my-project/package.json'),
+                    read('new/my-project/README.md'),
                     exists('new/my-project/lib/index.js'),
                     exists('new/my-project/test/index.js'),
                     exec('git remote', 'new/my-project'),
@@ -704,18 +706,21 @@ describe('hpal', () => {
 
                 const pkgAsString = results[0];
                 const pkg = JSON.parse(pkgAsString);
-                const lib = results[1];
-                const test = results[2];
-                const remotes = results[3][0].split('\n');
-                const tags = results[4][0].split('\n');
-                const modifiedFiles = results[5][0].trim();
-                const logError = results[6];
+                const readme = results[1];
+                const readmeH1 = readme.trim().substring(2);
+                const lib = results[2];
+                const test = results[3];
+                const remotes = results[4][0].split('\n');
+                const tags = results[5][0].split('\n');
+                const modifiedFiles = results[6][0].trim();
+                const logError = results[7];
 
-                expect(pkg.name).to.equal('chosen-name');
+                expect(pkg.name).to.equal(projectName);
                 expect(pkg.version).to.equal('1.0.0');
                 expect(pkg.dependencies).to.exist();
                 expect(pkg.devDependencies).to.exist();
                 expect(pkgAsString.endsWith('\n')).to.equal(true);
+                expect(readmeH1).to.equal(projectName);
                 expect(lib).to.exist();
                 expect(test).to.exist();
                 expect(remotes).to.contain('pal');
@@ -733,9 +738,10 @@ describe('hpal', () => {
 
                 flags.onCleanup = async () => await rimraf('new/bail-on-npm-init');
 
-                const cli = RunUtil.cli(['new', 'bail-on-npm-init'], 'new');
+                const projectName = 'bail-on-npm-init';
+                const cli = RunUtil.cli(['new', projectName], 'new');
 
-                answerNpmInit(cli, 'chosen-name', true); // Bail
+                answerNpmInit(cli, projectName, true); // Bail
 
                 const result = await cli;
 
@@ -745,6 +751,7 @@ describe('hpal', () => {
 
                 const results = await Promise.all([
                     read('new/bail-on-npm-init/package.json'),
+                    read('new/bail-on-npm-init/README.md'),
                     exists('new/bail-on-npm-init/lib/index.js'),
                     exists('new/bail-on-npm-init/test/index.js'),
                     exec('git remote', 'new/bail-on-npm-init'),
@@ -755,18 +762,21 @@ describe('hpal', () => {
 
                 const pkgAsString = results[0];
                 const pkg = JSON.parse(pkgAsString);
-                const lib = results[1];
-                const test = results[2];
-                const remotes = results[3][0].split('\n');
-                const tags = results[4][0].split('\n');
-                const modifiedFiles = results[5][0].trim();
-                const logError = results[6];
+                const readme = results[1];
+                const readmeH1 = readme.trim().substring(2);
+                const lib = results[2];
+                const test = results[3];
+                const remotes = results[4][0].split('\n');
+                const tags = results[5][0].split('\n');
+                const modifiedFiles = results[6][0].trim();
+                const logError = results[7];
 
                 expect(pkg.name).to.not.exist();
                 expect(pkg.version).to.not.exist();
                 expect(pkg.dependencies).to.exist();
                 expect(pkg.devDependencies).to.exist();
                 expect(pkgAsString.endsWith('\n')).to.equal(true);
+                expect(readmeH1).to.equal(projectName);
                 expect(lib).to.exist();
                 expect(test).to.exist();
                 expect(remotes).to.contain('pal');
