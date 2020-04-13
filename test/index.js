@@ -715,6 +715,8 @@ describe('hpal', () => {
                 expect(pkg.version).to.equal('1.0.0');
                 expect(pkg.dependencies).to.exist();
                 expect(pkg.devDependencies).to.exist();
+                expect(Object.keys(pkg.dependencies)).to.equal(Object.keys(pkg.dependencies).sort());
+                expect(Object.keys(pkg.devDependencies)).to.equal(Object.keys(pkg.devDependencies).sort());
                 expect(pkgAsString.endsWith('\n')).to.equal(true);
                 expect(lib).to.exist();
                 expect(test).to.exist();
@@ -766,6 +768,8 @@ describe('hpal', () => {
                 expect(pkg.version).to.not.exist();
                 expect(pkg.dependencies).to.exist();
                 expect(pkg.devDependencies).to.exist();
+                expect(Object.keys(pkg.dependencies)).to.equal(Object.keys(pkg.dependencies).sort());
+                expect(Object.keys(pkg.devDependencies)).to.equal(Object.keys(pkg.devDependencies).sort());
                 expect(pkgAsString.endsWith('\n')).to.equal(true);
                 expect(lib).to.exist();
                 expect(test).to.exist();
