@@ -682,10 +682,9 @@ describe('hpal', () => {
 
                 flags.onCleanup = async () => await rimraf('new/my-project');
 
-                const projectName = 'my-project';
-                const cli = RunUtil.cli(['new', projectName], 'new');
+                const cli = RunUtil.cli(['new', 'my-project'], 'new');
 
-                answerNpmInit(cli, projectName);
+                answerNpmInit(cli, 'chosen-name');
 
                 const result = await cli;
 
@@ -715,12 +714,12 @@ describe('hpal', () => {
                 const modifiedFiles = results[6][0].trim();
                 const logError = results[7];
 
-                expect(pkg.name).to.equal(projectName);
+                expect(pkg.name).to.equal('chosen-name');
                 expect(pkg.version).to.equal('1.0.0');
                 expect(pkg.dependencies).to.exist();
                 expect(pkg.devDependencies).to.exist();
                 expect(pkgAsString.endsWith('\n')).to.equal(true);
-                expect(readmeH1).to.equal(projectName);
+                expect(readmeH1).to.equal('chosen-name');
                 expect(lib).to.exist();
                 expect(test).to.exist();
                 expect(remotes).to.contain('pal');
@@ -738,10 +737,9 @@ describe('hpal', () => {
 
                 flags.onCleanup = async () => await rimraf('new/bail-on-npm-init');
 
-                const projectName = 'bail-on-npm-init';
-                const cli = RunUtil.cli(['new', projectName], 'new');
+                const cli = RunUtil.cli(['new', 'bail-on-npm-init'], 'new');
 
-                answerNpmInit(cli, projectName, true); // Bail
+                answerNpmInit(cli, 'chosen-name', true); // Bail
 
                 const result = await cli;
 
@@ -776,7 +774,7 @@ describe('hpal', () => {
                 expect(pkg.dependencies).to.exist();
                 expect(pkg.devDependencies).to.exist();
                 expect(pkgAsString.endsWith('\n')).to.equal(true);
-                expect(readmeH1).to.equal(projectName);
+                expect(readmeH1).to.equal('bail-on-npm-init');
                 expect(lib).to.exist();
                 expect(test).to.exist();
                 expect(remotes).to.contain('pal');
