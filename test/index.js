@@ -678,6 +678,26 @@ describe('hpal', () => {
                 }
             };
 
+            const completePkgKeysOrder = [
+                'name',
+                'version',
+                'description',
+                'author',
+                'license',
+                'main',
+                'directories',
+                'scripts',
+                'dependencies',
+                'devDependencies'
+            ];
+
+            const bailedPkgKeysOrder = [
+                'main',
+                'scripts',
+                'dependencies',
+                'devDependencies'
+            ];
+
             it('creates a new pal project.', { timeout: 5000 }, async (flags) => {
 
                 flags.onCleanup = async () => await rimraf('new/my-project');
@@ -715,6 +735,7 @@ describe('hpal', () => {
                 expect(pkg.version).to.equal('1.0.0');
                 expect(pkg.dependencies).to.exist();
                 expect(pkg.devDependencies).to.exist();
+                expect(Object.keys(pkg)).to.equal(completePkgKeysOrder);
                 expect(Object.keys(pkg.dependencies)).to.equal(Object.keys(pkg.dependencies).sort());
                 expect(Object.keys(pkg.devDependencies)).to.equal(Object.keys(pkg.devDependencies).sort());
                 expect(pkgAsString.endsWith('\n')).to.equal(true);
@@ -768,6 +789,7 @@ describe('hpal', () => {
                 expect(pkg.version).to.not.exist();
                 expect(pkg.dependencies).to.exist();
                 expect(pkg.devDependencies).to.exist();
+                expect(Object.keys(pkg)).to.equal(bailedPkgKeysOrder);
                 expect(Object.keys(pkg.dependencies)).to.equal(Object.keys(pkg.dependencies).sort());
                 expect(Object.keys(pkg.devDependencies)).to.equal(Object.keys(pkg.devDependencies).sort());
                 expect(pkgAsString.endsWith('\n')).to.equal(true);
