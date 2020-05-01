@@ -714,6 +714,7 @@ describe('hpal', () => {
 
                 const results = await Promise.all([
                     read('new/my-project/package.json'),
+                    read('new/my-project/README.md'),
                     exists('new/my-project/lib/index.js'),
                     exists('new/my-project/test/index.js'),
                     exec('git remote', 'new/my-project'),
@@ -724,12 +725,14 @@ describe('hpal', () => {
 
                 const pkgAsString = results[0];
                 const pkg = JSON.parse(pkgAsString);
-                const lib = results[1];
-                const test = results[2];
-                const remotes = results[3][0].split('\n');
-                const tags = results[4][0].split('\n');
-                const modifiedFiles = results[5][0].trim();
-                const logError = results[6];
+                const readme = results[1];
+                const readmeH1 = readme.trim().substring(2);
+                const lib = results[2];
+                const test = results[3];
+                const remotes = results[4][0].split('\n');
+                const tags = results[5][0].split('\n');
+                const modifiedFiles = results[6][0].trim();
+                const logError = results[7];
 
                 expect(pkg.name).to.equal('chosen-name');
                 expect(pkg.version).to.equal('1.0.0');
@@ -739,6 +742,7 @@ describe('hpal', () => {
                 expect(Object.keys(pkg.dependencies)).to.equal(Object.keys(pkg.dependencies).sort());
                 expect(Object.keys(pkg.devDependencies)).to.equal(Object.keys(pkg.devDependencies).sort());
                 expect(pkgAsString.endsWith('\n')).to.equal(true);
+                expect(readmeH1).to.equal('chosen-name');
                 expect(lib).to.exist();
                 expect(test).to.exist();
                 expect(remotes).to.contain('pal');
@@ -768,6 +772,7 @@ describe('hpal', () => {
 
                 const results = await Promise.all([
                     read('new/bail-on-npm-init/package.json'),
+                    read('new/bail-on-npm-init/README.md'),
                     exists('new/bail-on-npm-init/lib/index.js'),
                     exists('new/bail-on-npm-init/test/index.js'),
                     exec('git remote', 'new/bail-on-npm-init'),
@@ -778,12 +783,14 @@ describe('hpal', () => {
 
                 const pkgAsString = results[0];
                 const pkg = JSON.parse(pkgAsString);
-                const lib = results[1];
-                const test = results[2];
-                const remotes = results[3][0].split('\n');
-                const tags = results[4][0].split('\n');
-                const modifiedFiles = results[5][0].trim();
-                const logError = results[6];
+                const readme = results[1];
+                const readmeH1 = readme.trim().substring(2);
+                const lib = results[2];
+                const test = results[3];
+                const remotes = results[4][0].split('\n');
+                const tags = results[5][0].split('\n');
+                const modifiedFiles = results[6][0].trim();
+                const logError = results[7];
 
                 expect(pkg.name).to.not.exist();
                 expect(pkg.version).to.not.exist();
@@ -793,6 +800,7 @@ describe('hpal', () => {
                 expect(Object.keys(pkg.dependencies)).to.equal(Object.keys(pkg.dependencies).sort());
                 expect(Object.keys(pkg.devDependencies)).to.equal(Object.keys(pkg.devDependencies).sort());
                 expect(pkgAsString.endsWith('\n')).to.equal(true);
+                expect(readmeH1).to.equal('bail-on-npm-init');
                 expect(lib).to.exist();
                 expect(test).to.exist();
                 expect(remotes).to.contain('pal');
