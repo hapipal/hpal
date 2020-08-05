@@ -10,8 +10,8 @@
     "hpal": "./bin/hpal"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -L -I 'FinalizationRegistry,WeakRef' test/index.js test/print.js",
-    "coveralls": "lab -r lcov -I 'FinalizationRegistry,WeakRef' test/index.js test/print.js | coveralls"
+    "test": "lab -a @hapi/code -t 100 -L -I \"FinalizationRegistry,WeakRef\" test/index.js test/print.js",
+    "coveralls": "lab -r lcov -I \"FinalizationRegistry,WeakRef\" test/index.js test/print.js | coveralls"
   },
   "repository": {
     "type": "git",
