@@ -14,6 +14,10 @@ exports.deployment = async () => {
             described: {
                 description: 'This is what I do',
                 command: () => null
+            },
+            describedFn: {
+                description: (ctx) => JSON.stringify({ ctx: Object.keys(ctx).sort() }),
+                command: () => null
             }
         });
     };
@@ -32,6 +36,10 @@ exports.deployment = async () => {
             camelCased: () => null,
             described: {
                 description: 'This is what I do',
+                command: () => null
+            },
+            describedFn: {
+                description: (ctx) => JSON.stringify({ ctx: Object.keys(ctx).sort() }),
                 command: () => null
             }
         });

@@ -1500,10 +1500,14 @@ describe('hpal', () => {
                     '  hpal run x:camel-cased',
                     '  hpal run x:described',
                     '    • This is what I do',
+                    '  hpal run x:described-fn',
+                    '    • {"ctx":["DisplayError","colors","options","output"]}',
                     '  hpal run y',
                     '  hpal run y:camel-cased',
                     '  hpal run y:described',
-                    '    • This is what I do'
+                    '    • This is what I do',
+                    '  hpal run y:described-fn',
+                    '    • {"ctx":["DisplayError","colors","options","output"]}'
                 ].join('\n'));
             });
 
