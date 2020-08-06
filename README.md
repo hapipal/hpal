@@ -158,8 +158,10 @@ Any hapi plugin can create commands that are runnable with `hpal run`!  Commands
      - `server` - the initialized hapi server.
      - `args` - an array of all the command's CLI arguments.  For example, running `hpal run my-plugin --custom-flag value` will result in `args` being `['--custom-flag', 'value']`.
      - `root` - an absolute path to the project's root directory.
-     - `ctx` - a context object containing some hpal internals that may be useful during testing.  Also contains an error class `DisplayError` than can be used to indicate a "safe" failure to hpal.  Throwing a `DisplayError` will output the error's `message` and exit the process with code `1`, but not display a stack trace as would happen with an unexpected error.
-   - `description` - a string description of the command displayed by `hpal run --list`.
+     - `ctx` - a context object containing some hpal internals that may be useful during testing, plus some public helpers.  The following are public:
+       - `colors` - an object with functions for basic formatting of CLI output with colors and styles: `colors.green(str)`, `colors.yellow(str)`, `colors.red(str)`, `colors.grey(str)`, and `colors.bold(str)`.  When the CLI does not support color, these functions take no effect.
+       - `DisplayError` - a class that can be used to indicate a "safe" failure to hpal.  Throwing a `DisplayError` will output the error's `message` and exit the process with code `1`, but not display a stack trace as would happen with an unexpected error.
+   - `description` - a string description of the command displayed by `hpal run --list`.  May alternatively be a function with signature `function (ctx)` that receives `ctx` as described above and returns a string description.
 
 For example, here is a plugin that creates a command to display the server's route table,
 ```js
