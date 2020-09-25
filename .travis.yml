@@ -1,20 +1,3 @@
-language: node_js
-
-node_js:
-  - "8"
-  - "10"
-  - "12"
-  - "14"
-  - "node"
-
-os:
-  - "linux"
-  - "windows"
-
-before_script: |
-  if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
-    git config core.symlinks true
-    git reset --hard
-  fi
-
-after_script: "npm run coveralls"
+import:
+  - source: hapipal/ci-config-travis:os_all.yml@master
+  - source: hapipal/ci-config-travis:node_js.yml@master
