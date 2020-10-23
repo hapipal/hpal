@@ -3,11 +3,10 @@
 const ChildProcess = require('child_process');
 const Path = require('path');
 const Stream = require('stream');
-const Somever = require('@hapi/somever');
 const Hpal = require('..');
 const DisplayError = require('../lib/display-error');
 
-exports.Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-20') : require('@hapi/hapi');
+exports.Hapi = require('@hapi/hapi');
 
 exports.bin = (argv, cwd) => {
 

@@ -19,8 +19,7 @@ const RunUtil = require('./run-util');
 const Helpers = require('../lib/helpers');
 const DisplayError = require('../lib/display-error');
 const Package = require('../package.json');
-
-const Hapi = Somever.match(process.version, '>=12') ? require('@hapi/hapi-20') : require('@hapi/hapi');
+const Hapi = require('@hapi/hapi');
 
 // Test shortcuts
 
@@ -983,7 +982,7 @@ describe('hpal', () => {
                 return { calls, cleanup };
             };
 
-            const normalizeVersion = (str) => str.replace(/18\.[\d]+\.[\d]+/g, '18.x.x');
+            const normalizeVersion = (str) => str.replace(/20\.[\d]+\.[\d]+/g, '20.x.x');
 
             it('errors when fetching docs 404s.', async (flags) => {
 
@@ -993,8 +992,8 @@ describe('hpal', () => {
                 const result = await RunUtil.cli(['docs', 'xxx']);
 
                 expect(result.err).to.be.instanceof(DisplayError);
-                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v18.x.x...');
-                expect(normalizeVersion(result.errorOutput)).to.contain('Couldn\'t find docs for that version of hapi. Are you sure hapijs/hapi @ v18.x.x exists?');
+                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v20.x.x...');
+                expect(normalizeVersion(result.errorOutput)).to.contain('Couldn\'t find docs for that version of hapi. Are you sure hapijs/hapi @ v20.x.x exists?');
             });
 
             it('errors when fetching docs fails due to being offline.', async (flags) => {
@@ -1009,7 +1008,7 @@ describe('hpal', () => {
                 const result = await RunUtil.cli(['docs', 'xxx']);
 
                 expect(result.err).to.be.instanceof(DisplayError);
-                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v18.x.x...');
+                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v20.x.x...');
                 expect(result.errorOutput).to.contain('Could not fetch the hapi docs. It seems you may be offline– ensure you have a connection then try again.');
             });
 
@@ -1025,7 +1024,7 @@ describe('hpal', () => {
                 const result = await RunUtil.cli(['docs', 'xxx']);
 
                 expect(result.err).to.be.instanceof(DisplayError);
-                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v18.x.x...');
+                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v20.x.x...');
                 expect(result.errorOutput).to.contain('Could not fetch the hapi docs: Something bad happened during DNS lookup.');
             });
 
@@ -1037,7 +1036,7 @@ describe('hpal', () => {
                 const result = await RunUtil.cli(['docs', 'xxx']);
 
                 expect(result.err).to.be.instanceof(DisplayError);
-                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v18.x.x...');
+                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v20.x.x...');
                 expect(result.errorOutput).to.contain('Could not fetch the hapi docs: Internal Server Error');
             });
 
@@ -1049,7 +1048,7 @@ describe('hpal', () => {
                 const result = await RunUtil.cli(['docs', 'xxx']);
 
                 expect(result.err).to.be.instanceof(DisplayError);
-                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v18.x.x...');
+                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v20.x.x...');
                 expect(result.errorOutput).to.contain('Could not fetch the hapi docs: No way can you get those docs');
             });
 
@@ -1320,7 +1319,7 @@ describe('hpal', () => {
                 const result = await RunUtil.cli(['docs', 'rv']); // Would definitely find "server.anything()"
 
                 expect(result.err).to.be.instanceof(DisplayError);
-                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v18.x.x...');
+                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v20.x.x...');
                 expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "rv".');
             });
 
@@ -1400,7 +1399,7 @@ describe('hpal', () => {
                 const result = await RunUtil.cli(['docs', '#route-options', 'nope']);
 
                 expect(result.err).to.be.instanceof(DisplayError);
-                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v18.x.x...');
+                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v20.x.x...');
                 expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "#route-options nope".');
             });
         });
