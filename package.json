@@ -43,7 +43,7 @@
     "marked": "0.7.x",
     "marked-terminal": "3.x.x",
     "mkdirp": "1.x.x",
-    "pkg-dir": "4.x.x",
+    "pkg-dir": "5.x.x",
     "pluralize": "7.x.x",
     "supports-color": "6.x.x"
   },
