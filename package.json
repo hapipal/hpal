@@ -51,7 +51,7 @@
     "@hapi/boom": "9.x.x",
     "@hapi/code": "8.x.x",
     "@hapi/hapi": "20.x.x",
-    "@hapi/lab": "19.x.x",
+    "@hapi/lab": "24.x.x",
     "coveralls": "3.x.x",
     "haute-couture": "3.x.x",
     "rimraf": "3.x.x",
