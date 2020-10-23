@@ -55,6 +55,6 @@
     "coveralls": "3.x.x",
     "haute-couture": "3.x.x",
     "rimraf": "3.x.x",
-    "strip-ansi": "5.x.x"
+    "strip-ansi": "6.x.x"
   }
 }
