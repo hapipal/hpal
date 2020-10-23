@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/hapipal/hpal#readme",
   "dependencies": {
-    "@hapi/bossy": "4.x.x",
+    "@hapi/bossy": "5.x.x",
     "@hapi/bounce": "1.x.x",
     "@hapi/somever": "2.x.x",
     "@hapi/wreck": "15.x.x",
