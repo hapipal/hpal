@@ -48,7 +48,7 @@
     "supports-color": "7.x.x"
   },
   "devDependencies": {
-    "@hapi/boom": "7.x.x",
+    "@hapi/boom": "9.x.x",
     "@hapi/code": "5.x.x",
     "@hapi/hapi": "18.x.x",
     "@hapi/hapi-20": "npm:@hapi/hapi@20",
