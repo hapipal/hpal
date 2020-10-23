@@ -45,7 +45,7 @@
     "mkdirp": "1.x.x",
     "pkg-dir": "5.x.x",
     "pluralize": "8.x.x",
-    "supports-color": "6.x.x"
+    "supports-color": "7.x.x"
   },
   "devDependencies": {
     "@hapi/boom": "7.x.x",
