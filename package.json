@@ -54,7 +54,7 @@
     "@hapi/lab": "19.x.x",
     "coveralls": "3.x.x",
     "haute-couture": "3.x.x",
-    "rimraf": "2.x.x",
+    "rimraf": "3.x.x",
     "strip-ansi": "5.x.x"
   }
 }
