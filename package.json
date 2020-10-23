@@ -36,7 +36,7 @@
   "dependencies": {
     "@hapi/bossy": "5.x.x",
     "@hapi/bounce": "2.x.x",
-    "@hapi/somever": "2.x.x",
+    "@hapi/somever": "3.x.x",
     "@hapi/wreck": "15.x.x",
     "bin-v8-flags-filter": ">=1.2.0 <2",
     "glob": "7.x.x",
