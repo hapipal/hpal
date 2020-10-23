@@ -35,7 +35,7 @@
   "homepage": "https://github.com/hapipal/hpal#readme",
   "dependencies": {
     "@hapi/bossy": "5.x.x",
-    "@hapi/bounce": "1.x.x",
+    "@hapi/bounce": "2.x.x",
     "@hapi/somever": "2.x.x",
     "@hapi/wreck": "15.x.x",
     "bin-v8-flags-filter": ">=1.2.0 <2",
