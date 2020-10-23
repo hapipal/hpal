@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@hapi/boom": "9.x.x",
-    "@hapi/code": "5.x.x",
+    "@hapi/code": "8.x.x",
     "@hapi/hapi": "18.x.x",
     "@hapi/hapi-20": "npm:@hapi/hapi@20",
     "@hapi/lab": "19.x.x",
