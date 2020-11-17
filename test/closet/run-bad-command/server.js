@@ -1,6 +1,6 @@
 'use strict';
 
-const { Hapi } = require('../../run-util');
+const Hapi = require('@hapi/hapi');
 
 exports.deployment = async () => {
 

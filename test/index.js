@@ -7,6 +7,7 @@ const Os = require('os');
 const Path = require('path');
 const Util = require('util');
 const ChildProcess = require('child_process');
+const Hapi = require('@hapi/hapi');
 const Lab = require('@hapi/lab');
 const Code = require('@hapi/code');
 const Rimraf = require('rimraf');
@@ -19,7 +20,6 @@ const RunUtil = require('./run-util');
 const Helpers = require('../lib/helpers');
 const DisplayError = require('../lib/display-error');
 const Package = require('../package.json');
-const Hapi = require('@hapi/hapi');
 
 // Test shortcuts
 
@@ -290,13 +290,16 @@ describe('hpal', () => {
 
             it('errors hard when writing a file fails.', async (flags) => {
 
-                const writeFile = Fs.writeFile;
+                const writeFile = Helpers.writeFile;
 
-                Fs.writeFile = (x, y, z, cb) => cb(new Error('Write badness'));
+                Helpers.writeFile = () => {
+
+                    throw new Error('Write badness');
+                };
 
                 flags.onCleanup = () => {
 
-                    Fs.writeFile = writeFile;
+                    Helpers.writeFile = writeFile;
                 };
 
                 const err = await expect(RunUtil.cli(['make', 'routes'], 'write-fails')).to.reject();
@@ -982,7 +985,7 @@ describe('hpal', () => {
                 return { calls, cleanup };
             };
 
-            const normalizeVersion = (str) => str.replace(/20\.[\d]+\.[\d]+/g, '20.x.x');
+            const normalizeVersion = (str) => str.replace(/(19|20)\.[\d]+\.[\d]+/g, '20.x.x');
 
             it('errors when fetching docs 404s.', async (flags) => {
 

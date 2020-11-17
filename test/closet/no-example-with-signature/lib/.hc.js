@@ -1,7 +1,8 @@
 'use strict';
 
-module.exports = [{
-    method: 'x',
-    place: 'x',
-    signature: ['a', '[b]', 'c']
-}];
+module.exports = {
+    x: {
+        method: 'x',
+        signature: ['a', '[b]', 'c']
+    }
+};

@@ -1,6 +1,6 @@
 'use strict';
 
-const { Hapi } = require('../../run-util');
+const Hapi = require('@hapi/hapi');
 
 // Here's the bad require
 require('does-not-exist');

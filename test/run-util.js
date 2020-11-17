@@ -3,10 +3,8 @@
 const ChildProcess = require('child_process');
 const Path = require('path');
 const Stream = require('stream');
-const Hpal = require('..');
 const DisplayError = require('../lib/display-error');
-
-exports.Hapi = require('@hapi/hapi');
+const Hpal = require('..');
 
 exports.bin = (argv, cwd) => {
 
