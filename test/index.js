@@ -236,7 +236,7 @@ describe('hpal', () => {
 
                 expect(result.err).to.be.instanceof(DisplayError);
                 expect(result.output).to.equal('');
-                expect(result.errorOutput).to.contain('Couldn\'t find the haute-couture package in this project. It may just need to be installed.');
+                expect(result.errorOutput).to.contain('Couldn\'t find the @hapipal/haute-couture package in this project. It may just need to be installed.');
             });
 
             it('errors when file to create already exists.', async () => {
@@ -1076,7 +1076,7 @@ describe('hpal', () => {
 
                 expect(err).to.be.instanceof(SyntaxError);
                 expect(err).to.not.be.instanceof(DisplayError);
-                expect(err.output).to.equal('Searching docs from hapijs/hapi @ master...');
+                expect(normalizeVersion(err.output)).to.equal('Searching docs from hapijs/hapi @ v20.x.x...');
             });
 
             it('defaults to fetch docs for the version of the package used in the current project.', async (flags) => {
@@ -1119,11 +1119,11 @@ describe('hpal', () => {
                 const result = await RunUtil.cli(['docs:joi', 'xxx'], 'specific-joi-scoped-version');
 
                 expect(mockWreck.calls).to.equal([
-                    'https://raw.githubusercontent.com/hapijs/joi/v6.6.6/API.md'
+                    'https://raw.githubusercontent.com/sideway/joi/v6.6.6/API.md'
                 ]);
 
                 expect(result.err).to.be.instanceof(DisplayError);
-                expect(result.output).to.equal('Searching docs from hapijs/joi @ v6.6.6...');
+                expect(result.output).to.equal('Searching docs from sideway/joi @ v6.6.6...');
                 expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
             });
 
@@ -1135,11 +1135,11 @@ describe('hpal', () => {
                 const result = await RunUtil.cli(['docs:joi', 'xxx'], 'specific-joi-version');
 
                 expect(mockWreck.calls).to.equal([
-                    'https://raw.githubusercontent.com/hapijs/joi/v6.6.6/API.md'
+                    'https://raw.githubusercontent.com/sideway/joi/v6.6.6/API.md'
                 ]);
 
                 expect(result.err).to.be.instanceof(DisplayError);
-                expect(result.output).to.equal('Searching docs from hapijs/joi @ v6.6.6...');
+                expect(result.output).to.equal('Searching docs from sideway/joi @ v6.6.6...');
                 expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
             });
 
@@ -1228,14 +1228,14 @@ describe('hpal', () => {
                 const mockWreck = mockWreckGet(null);
                 flags.onCleanup = mockWreck.cleanup;
 
-                const result = await RunUtil.cli(['docs:joi', 'xxx'], '/');
+                const result = await RunUtil.cli(['docs:unknown', 'xxx'], '/');
 
                 expect(mockWreck.calls).to.equal([
-                    'https://raw.githubusercontent.com/hapijs/joi/master/API.md'
+                    'https://raw.githubusercontent.com/hapijs/unknown/master/API.md'
                 ]);
 
                 expect(result.err).to.be.instanceof(DisplayError);
-                expect(result.output).to.equal('Searching docs from hapijs/joi @ master...');
+                expect(result.output).to.equal('Searching docs from hapijs/unknown @ master...');
                 expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
             });
 
