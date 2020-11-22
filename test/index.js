@@ -239,6 +239,15 @@ describe('hpal', () => {
                 expect(result.errorOutput).to.contain('Couldn\'t find the @hapipal/haute-couture package in this project. It may just need to be installed.');
             });
 
+            it('errors when haute-couture cannot be found but a legacy version can be found.', async () => {
+
+                const result = await RunUtil.cli(['make', 'route'], 'legacy-haute-couture');
+
+                expect(result.err).to.be.instanceof(DisplayError);
+                expect(result.output).to.equal('');
+                expect(result.errorOutput).to.contain('This version of hpal is not compatible with old versions of haute-couture. Ensure you have @hapipal/haute-couture v4 or newer installed in your project, or downgrade to hpal v2.');
+            });
+
             it('errors when file to create already exists.', async () => {
 
                 const result = await RunUtil.cli(['make', 'route', 'some-route'], 'file-already-exists');
@@ -1095,6 +1104,30 @@ describe('hpal', () => {
                 expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
             });
 
+            it('ignores error errors when haute-couture cannot be found.', async (flags) => {
+
+                const mockWreck = mockWreckGet(null);
+                flags.onCleanup = mockWreck.cleanup;
+
+                const result = await RunUtil.cli(['docs', 'xxx'], 'no-haute-couture');
+
+                expect(result.err).to.be.instanceof(DisplayError);
+                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v20.x.x...');
+                expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+            });
+
+            it('ignores error errors when legacy haute-couture is installed.', async (flags) => {
+
+                const mockWreck = mockWreckGet(null);
+                flags.onCleanup = mockWreck.cleanup;
+
+                const result = await RunUtil.cli(['docs', 'xxx'], 'legacy-haute-couture');
+
+                expect(result.err).to.be.instanceof(DisplayError);
+                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v20.x.x...');
+                expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
+            });
+
             it('defaults to fetch docs for the version of the scoped package used in the current project.', async (flags) => {
 
                 const mockWreck = mockWreckGet(null);
@@ -1228,7 +1261,7 @@ describe('hpal', () => {
                 const mockWreck = mockWreckGet(null);
                 flags.onCleanup = mockWreck.cleanup;
 
-                const result = await RunUtil.cli(['docs:unknown', 'xxx'], '/');
+                const result = await RunUtil.cli(['docs:unknown', 'xxx']);
 
                 expect(mockWreck.calls).to.equal([
                     'https://raw.githubusercontent.com/hapijs/unknown/master/API.md'
@@ -1312,6 +1345,18 @@ describe('hpal', () => {
                 expect(result5.err).to.not.exist();
                 expect(StripAnsi(result5.output)).to.contain('# server.register('); // Direct (non-plural) haute-couture match
                 expect(result5.errorOutput).to.equal('');
+            });
+
+            it('does not match based on custom method.', async (flags) => {
+
+                const mockWreck = mockWreckGet();
+                flags.onCleanup = mockWreck.cleanup;
+
+                const result = await RunUtil.cli(['docs', 'anywhere'], 'hc-custom-method');
+
+                expect(result.err).to.be.instanceof(DisplayError);
+                expect(normalizeVersion(result.output)).to.equal('Searching docs from hapijs/hapi @ v20.x.x...');
+                expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "anywhere".');
             });
 
             it('matches on query only when it has at least three characters.', async (flags) => {
