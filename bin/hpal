@@ -7,8 +7,7 @@ const V8FlagsFilter = require('bin-v8-flags-filter');
 
 const REPL_AWAIT_FLAG = '--experimental-repl-await';
 
-if ((process.allowedNodeEnvironmentFlags && process.allowedNodeEnvironmentFlags.has(REPL_AWAIT_FLAG)) ||
-    (!process.allowedNodeEnvironmentFlags && Somever.match(process.version.slice(1), '>=10'))) {
+if ((process.allowedNodeEnvironmentFlags && process.allowedNodeEnvironmentFlags.has(REPL_AWAIT_FLAG))) {
     process.argv.push(REPL_AWAIT_FLAG);
 }
 

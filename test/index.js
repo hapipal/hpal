@@ -6,12 +6,12 @@ const Fs = require('fs');
 const Os = require('os');
 const Path = require('path');
 const Util = require('util');
+const AsyncHooks = require('async_hooks');
 const ChildProcess = require('child_process');
 const Hapi = require('@hapi/hapi');
 const Lab = require('@hapi/lab');
 const Code = require('@hapi/code');
 const Rimraf = require('rimraf');
-const Somever = require('@hapi/somever');
 const StripAnsi = require('strip-ansi');
 const Boom = require('@hapi/boom');
 const Wreck = require('@hapi/wreck');
@@ -1667,6 +1667,39 @@ describe('hpal', () => {
                 expect(result.errorOutput).to.equal('');
                 expect(result.options.cmd).to.equal('ran');
             });
+
+            it('provides async local storage.', async () => {
+
+                const result = await RunUtil.cli(['run', 'x', '--some-arg'], 'run-async-local-storage');
+
+                expect(result.err).to.not.exist();
+                expect(result.errorOutput).to.equal('');
+                expect(result.options.cmd.start).to.only.contain(['command', 'params']);
+                expect(result.options.cmd.start.command).to.equal('run');
+                expect(result.options.cmd.start.params).to.only.contain(['cwd', 'list', 'command', 'args', 'ctx']);
+                expect(result.options.cmd.start.params.cwd).to.contain('run-async-local-storage');
+                expect(result.options.cmd.start.params.list).to.equal(false);
+                expect(result.options.cmd.start.params.command).to.equal('x');
+                expect(result.options.cmd.start.params.ctx).to.contain(['options', 'colors', 'DisplayError']);
+                expect(result.options.cmd.start).to.shallow.equal(result.options.cmd.stop);
+            });
+
+            it('does not fail when async local storage is unsupported.', async (flags) => {
+
+                const { AsyncLocalStorage } = AsyncHooks;
+
+                delete AsyncHooks.AsyncLocalStorage;
+                flags.onCleanup = () => {
+
+                    AsyncHooks.AsyncLocalStorage = AsyncLocalStorage;
+                };
+
+                const result = await RunUtil.cli(['run', 'x', '--some-arg'], 'run-async-local-storage');
+
+                expect(result.err).to.not.exist();
+                expect(result.errorOutput).to.equal('');
+                expect(result.options.cmd).to.equal({ start: undefined, stop: undefined });
+            });
         });
     });
 
@@ -1686,14 +1719,7 @@ describe('hpal', () => {
             const result = await RunUtil.bin(['run', 'x', '--use_strict'], `${__dirname}/closet/run-echo-exec-argv`);
 
             expect(result.code).to.equal(0);
-
-            if (Somever.match(process.version.slice(1), '>=10')) {
-                expect(result.output).to.contain('["--experimental-repl-await","--use_strict"]');
-            }
-            else {
-                expect(result.output).to.contain('["--use_strict"]');
-            }
-
+            expect(result.output).to.contain('["--experimental-repl-await","--use_strict"]');
             expect(result.errorOutput).to.equal('');
         });
     });

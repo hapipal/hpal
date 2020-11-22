@@ -41,6 +41,7 @@
     "@hapi/bounce": "2.x.x",
     "@hapi/somever": "3.x.x",
     "@hapi/wreck": "17.x.x",
+    "@hapipal/toys": "3.x.x",
     "bin-v8-flags-filter": ">=1.2.0 <2",
     "glob": "7.x.x",
     "marked": "0.7.x",
@@ -55,8 +56,8 @@
     "@hapi/code": "8.x.x",
     "@hapi/hapi": "20.x.x",
     "@hapi/lab": "24.x.x",
+    "@hapipal/haute-couture": "4.x.x",
     "coveralls": "3.x.x",
-    "haute-couture": "3.x.x",
     "rimraf": "3.x.x",
     "strip-ansi": "6.x.x"
   }
