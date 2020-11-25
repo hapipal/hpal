@@ -476,6 +476,28 @@ describe('Print.markdownSection()', () => {
         ].join('\n\n'));
     });
 
+    it('omits html from headers.', () => {
+
+        const md = [
+            '# H1',
+            'Header one info',
+            '## H2-1',
+            'Header two info',
+            '### H3-1',
+            'Header three first info',
+            '### H3-2',
+            'Header three second info',
+            '## <a name="header2-2" /> H2-2 `code`'
+        ].join('\n');
+
+        const matcher = (h) => h.includes('H2-2');
+
+        expect(StripAnsi(p(md, [matcher]))).to.equal([
+            '## H2-2 code',
+            ''
+        ].join('\n\n'));
+    });
+
     it('prints section at end of markdown file.', () => {
 
         const md = [
@@ -753,7 +775,7 @@ describe('Print.markdownListItem()', () => {
         ].join('\n');
 
         const hMatcher = (h) => h === 'H2-1';
-        const lMatcher = (l) => ~l.indexOf('```') || ~l.indexOf('code');
+        const lMatcher = (l) => l.includes('```') || l.includes('code');
 
         expect(StripAnsi(p(md, [hMatcher], lMatcher))).to.equal(null);
     });

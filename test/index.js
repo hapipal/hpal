@@ -1680,6 +1680,7 @@ describe('hpal', () => {
                 expect(result.options.cmd.start.params.cwd).to.contain('run-async-local-storage');
                 expect(result.options.cmd.start.params.list).to.equal(false);
                 expect(result.options.cmd.start.params.command).to.equal('x');
+                expect(result.options.cmd.start.params.args).to.equal(['--some-arg']);
                 expect(result.options.cmd.start.params.ctx).to.contain(['options', 'colors', 'DisplayError']);
                 expect(result.options.cmd.start).to.shallow.equal(result.options.cmd.stop);
             });
