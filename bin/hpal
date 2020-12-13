@@ -2,7 +2,6 @@
 'use strict';
 
 const Path = require('path');
-const Somever = require('@hapi/somever');
 const V8FlagsFilter = require('bin-v8-flags-filter');
 
 const REPL_AWAIT_FLAG = '--experimental-repl-await';

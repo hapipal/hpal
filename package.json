@@ -1,5 +1,5 @@
 {
-  "name": "hpal",
+  "name": "@hapipal/hpal",
   "version": "2.6.0",
   "description": "hapi pal CLI",
   "main": "lib/index.js",

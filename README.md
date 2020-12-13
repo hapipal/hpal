@@ -2,31 +2,33 @@
 
 hapi pal CLI
 
-[![Build Status](https://travis-ci.org/hapipal/hpal.svg?branch=master)](https://travis-ci.org/hapipal/hpal) [![Coverage Status](https://coveralls.io/repos/hapipal/hpal/badge.svg?branch=master&service=github)](https://coveralls.io/github/hapipal/hpal?branch=master)
+[![Build Status](https://travis-ci.com/hapipal/hpal.svg?branch=master)](https://travis-ci.com/hapipal/hpal) [![Coverage Status](https://coveralls.io/repos/hapipal/hpal/badge.svg?branch=master&service=github)](https://coveralls.io/github/hapipal/hpal?branch=master)
 
 Lead Maintainer - [Devin Ivy](https://github.com/devinivy)
 
 `hpal` was designed to help you,
   - :sparkles: create new hapi projects from the [pal boilerplate](https://github.com/hapipal/boilerplate)
-  - :bouquet: generate files for routes, extensions, [models](https://github.com/hapipal/schwifty), [services](https://github.com/hapipal/schmervice), etc. via [`haute-couture`](https://github.com/hapipal/haute-couture)
-  - :books: search the [hapi docs](https://github.com/hapijs/hapi/blob/master/API.md) from the command line– plus many others such as [joi](https://github.com/hapijs/joi/blob/master/API.md) and [toys](https://github.com/hapipal/toys/blob/master/API.md)
+  - :bouquet: generate files for routes, extensions, [models](https://github.com/hapipal/schwifty), [services](https://github.com/hapipal/schmervice), etc. via [haute-couture](https://github.com/hapipal/haute-couture)
+  - :books: search the [hapi docs](https://hapi.dev/api/) from the command line– plus many others such as [joi](https://joi.dev/api/) and [toys](https://hapipal.com/docs/toys)
   - :honeybee: run custom commands defined by your server's hapi plugins
 
 ## Installation
-> Note, the hpal CLI is designed for use with **hapi v17+** and **nodejs v8+**.
 
-We recommend installing the hpal CLI as a dev dependency within your project, then invoking it using [npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b).
+It is recommended to install the hpal CLI as a dev dependency within your project, then invoke it using [npx](https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b).
+
 ```
-npm install --save-dev hpal
+npm install --save-dev @hapipal/hpal
 npx hpal --help
 ```
 
-If you want to try the hpal CLI right now, just copy and paste this right into your terminal!
+However, if you want to try the hpal CLI right now, just copy and paste this right into your terminal!
 ```
-npx hpal docs --ver 18.1.0 h.response
+npx @hapipal/hpal docs --ver 20.0.0 h.response
 ```
 
 ## Usage
+> The hpal CLI is intended for use with hapi v19+ and nodejs v12+ (_see v2 for lower support_).
+
 ```
 Usage: hpal <command> <options>
 
@@ -39,7 +41,7 @@ Commands:
     e.g. hpal make route create-user
 
   hpal docs[:<package-name>] [--ver x.y.z|ref] <docs-section> [<config-item>]
-    e.g. hpal docs --ver 17.2.0 h.continue
+    e.g. hpal docs --ver 20.0.0 h.continue
 
   hpal run [--list] <cmd> [<cmd-options>]
     e.g. hpal run plugin-name:command-name
@@ -70,33 +72,33 @@ Clones the [pal boilerplate](https://github.com/hapipal/boilerplate), helps you 
 >   e.g. hpal make route create-user
 > ```
 
-Creates a new file for a [`haute-couture` item](https://github.com/hapipal/haute-couture/blob/master/API.md#files-and-directories) with details ready to be filled-in.  This is the best way to add a route, plugin, model, service, etc. to any project that uses haute-couture.
+Creates a new file for a [haute-couture item](https://hapipal.com/docs/haute-couture#files-and-directories) with details ready to be filled-in.  This is the best way to add a route, plugin, model, service, etc. to any project that uses haute-couture.
 
-Relies on the presence of a [`.hc.js`](https://github.com/hapipal/haute-couture/blob/master/API.md#specifying-amendments-with-hcjs) file in the project, even if it's empty, in order to determine the base directory of the plugin in which to write the file.  If `.hc.js` contains amendments then those will be respected– in this way you can customize the behavior of `hpal make` per project.  Projects created with [`hpal new`](#hpal-new) are already configured to work with `hpal make`.
+Relies on the presence of a [`.hc.js`](https://hapipal.com/docs/haute-couture#specifying-amendments-with-hcjs) file in the project, even if it's empty, in order to determine the base directory of the plugin in which to write the file.  If `.hc.js` contains amendments then those will be respected– in this way you can customize the behavior of `hpal make` per project.  Projects created with [`hpal new`](#hpal-new) are already configured to work with `hpal make`.
 
 The `--asDir` and `--asFile` flags can be used to determine where the file is written.  For a list item like `routes`, specifying `--asFile` (`hpal make route --asFile`) will create `routes.js` rather than `routes/index.js`.  For a single item like `auth/default`, specifying `--asDir` (`hpal make auth/default --asDir`) will create `auth/default/index.js` rather than `auth/default.js`.  When an optional `<item-name>` is specified then that will always place a file in the relevant directory with the name `<item-name>.js`.  For example, `hpal make route create-user` will write the file `routes/create-user.js`.
 
-In order to omit the statement to enable [strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode) to the top of the generated files (per the hapi style guide), you may specify `exampleUseStrict` as `false` inside the `meta` property of the relevant haute-couture manifest items.
+In order to omit the statement to enable [strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode) to the top of the generated files (per the hapi style guide), you may specify `exampleUseStrict` as `false` inside the `meta` property of the relevant haute-couture amendment.
 
 #### `hpal docs`
 > ```
 > hpal docs[:<package-name>] [--ver x.y.z|ref] <docs-section> [<config-item>]
->   e.g. hpal docs --ver 17.2.0 h.continue
+>   e.g. hpal docs --ver 20.0.0 h.continue
 > ```
 
-Searches the [hapi API reference](https://github.com/hapijs/hapi/blob/master/API.md) for the relevant section or configuration item then prints it formatted to the console.
+Searches the [hapi API reference](https://hapi.dev/api/) for the relevant section or configuration item then prints it formatted to the console.
 
-:dizzy: This command can also search the API reference for any package within the pal and hapijs ecosystems by specifying `<package-name>`, e.g. [`hpal docs:toys noop`](https://github.com/hapipal/toys/blob/master/API.md#toysnoop) or [`hpal docs:joi any.strip`](https://github.com/hapijs/joi/blob/master/API.md#anystrip).
+:dizzy: This command can also search the API reference for any package within the pal and hapijs ecosystems by specifying `<package-name>`, e.g. [`hpal docs:toys noop`](https://hapipal.com/docs/toys#toysnoop) or [`hpal docs:joi any.strip`](https://joi.dev/api/#anystrip).
 
 `<docs-section>` can be,
  - the name of any haute-couture item (e.g. `route`, `plugins`, `auth/default`) when in a haute-couture project
-   - e.g. [`hpal docs auth/scheme`](https://github.com/hapijs/hapi/blob/master/API.md#server.auth.scheme())
+   - e.g. [`hpal docs auth/scheme`](https://hapi.dev/api/#server.auth.scheme())
  - the name of any server, request, toolkit, etc. method
-   - e.g. [`hpal docs request.setUrl`](https://github.com/hapijs/hapi/blob/master/API.md#request.setUrl())
+   - e.g. [`hpal docs request.setUrl`](https://hapi.dev/api/#request.setUrl())
  - a substring of any heading from the docs
-   - e.g. [`hpal docs router`](https://github.com/hapijs/hapi/blob/master/API.md#server.options.router)
+   - e.g. [`hpal docs router`](https://hapi.dev/api/#server.options.router)
  - an anchor seen anywhere in the docs
-   - e.g. [`hpal docs '#catch-all-route'`](https://github.com/hapijs/hapi/blob/master/API.md#catch-all-route)
+   - e.g. [`hpal docs '#catch-all-route'`](https://hapi.dev/api/#catch-all-route)
 
 When `<config-item>` is also specified, the first list item within the matched `<docs-section>` that matches text from `<config-item>` will be displayed on its own.  For example, `hpal docs request.setUrl` is a long section of the docs but `hpal docs request.setUrl stripTrailingSlash` contains only information relevant to the `stripTrailingSlash` argument.
 
@@ -128,7 +130,7 @@ Here is a very basic example,
 const Hapi = require('hapi');
 const AppPlugin = require('../app');
 
-exports.deployment = async (start) => {
+exports.deployment = async ({ start } = {}) => {
 
     const server = Hapi.server();
 
@@ -145,13 +147,13 @@ exports.deployment = async (start) => {
 // run directly from the CLI, i.e. "node ./server"
 
 if (!module.parent) {
-    exports.deployment(true);
+    exports.deployment({ start: true });
 }
 ```
 
 ##### Creating your own commands
 
-Any hapi plugin can create commands that are runnable with `hpal run`!  Commands are exposed to hpal using hapi's [`server.expose()`](https://github.com/hapijs/hapi/blob/master/API.md#server.expose()).  Inside your plugin `my-plugin` simply call `server.expose('commands', commands)`, where `commands` is an object,
+Any hapi plugin can create commands that are runnable with `hpal run`!  Commands are exposed to hpal using hapi's [`server.expose()`](https://hapi.dev/api/#server.expose()).  Inside your plugin `my-plugin` simply call `server.expose('commands', commands)`, where `commands` is an object,
  - whose keys are command names.  The name `default` is reserved for the command `hpal run my-plugin`.  Camel-cased command names are converted to kebab-case, so if the key is `someCommand` then it is run using `hpal run my-plugin:some-command`.
  - whose values are either objects `{ command, description }` or functions `command` where,
    - `command` - a function with the signature `async function(server, args, root, ctx)`.
