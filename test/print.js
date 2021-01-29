@@ -7,12 +7,13 @@
 const Os = require('os');
 const Lab = require('@hapi/lab');
 const Code = require('@hapi/code');
+const Chalk = require('chalk'); // Implicitly from marked-terminal
 const StripAnsi = require('strip-ansi');
 const Print = require('../lib/print');
 
 // Test shortcuts
 
-const { describe, it } = exports.lab = Lab.script();
+const { describe, it, before, after } = exports.lab = Lab.script();
 const { expect } = Code;
 
 const internals = {};
@@ -427,6 +428,25 @@ describe('Print.requires()', () => {
 
 describe('Print.markdownSection()', () => {
 
+    // We force colors on these tests since they affect the output
+    // and Windows CI has colors disabled implicitly via chalk.
+    // In theory it should not affect output since we normalize for
+    // ansi colors here, but it does due to limitations of marked-terminal.
+
+    const { enabled: origEnabled, level: origLevel } = Chalk;
+
+    before(() => {
+
+        Chalk.enabled = true;
+        Chalk.level = 1;
+    });
+
+    after(() => {
+
+        Chalk.enabled = origEnabled;
+        Chalk.level = origLevel;
+    });
+
     const p = Print.markdownSection;
 
     it('prints section in middle of markdown file.', () => {
@@ -525,6 +545,25 @@ describe('Print.markdownSection()', () => {
 });
 
 describe('Print.markdownListItem()', () => {
+
+    // We force colors on these tests since they affect the output
+    // and Windows CI has colors disabled implicitly via chalk.
+    // In theory it should not affect output since we normalize for
+    // ansi colors here, but it does due to limitations of marked-terminal.
+
+    const { enabled: origEnabled, level: origLevel } = Chalk;
+
+    before(() => {
+
+        Chalk.enabled = true;
+        Chalk.level = 1;
+    });
+
+    after(() => {
+
+        Chalk.enabled = origEnabled;
+        Chalk.level = origLevel;
+    });
 
     const p = Print.markdownListItem;
 

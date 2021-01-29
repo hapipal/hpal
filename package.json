@@ -1,6 +1,6 @@
 {
   "name": "hpal",
-  "version": "2.2.1",
+  "version": "2.6.0",
   "description": "hapi pal CLI",
   "main": "lib/index.js",
   "directories": {
@@ -10,8 +10,8 @@
     "hpal": "./bin/hpal"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -I 'FinalizationRegistry,WeakRef' -L test/*.js",
-    "coveralls": "lab -r lcov test/*.js | coveralls"
+    "test": "lab -a @hapi/code -t 100 -L -I \"FinalizationRegistry,WeakRef\" test/index.js test/print.js",
+    "coveralls": "lab -r lcov -I \"FinalizationRegistry,WeakRef\" test/index.js test/print.js | coveralls"
   },
   "repository": {
     "type": "git",
@@ -40,7 +40,6 @@
     "@hapi/wreck": "15.x.x",
     "bin-v8-flags-filter": ">=1.2.0 <2",
     "glob": "7.x.x",
-    "json-stable-stringify": "1.x.x",
     "marked": "0.7.x",
     "marked-terminal": "3.x.x",
     "mkdirp": "0.5.x",
@@ -52,6 +51,7 @@
     "@hapi/boom": "7.x.x",
     "@hapi/code": "5.x.x",
     "@hapi/hapi": "18.x.x",
+    "@hapi/hapi-20": "npm:@hapi/hapi@20",
     "@hapi/lab": "19.x.x",
     "coveralls": "3.x.x",
     "haute-couture": "3.x.x",
