@@ -10,7 +10,7 @@
     "hpal": "./bin/hpal"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -L test/*.js",
+    "test": "lab -a @hapi/code -t 100 -I 'FinalizationRegistry,WeakRef' -L test/*.js",
     "coveralls": "lab -r lcov test/*.js | coveralls"
   },
   "repository": {
