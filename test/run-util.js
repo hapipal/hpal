@@ -23,7 +23,7 @@ exports.bin = (argv, cwd, bailOnNpmInit) => {
             combinedOutput += data;
 
             if (bailOnNpmInit && ~data.toString().indexOf('Press ^C at any time to quit.')) {
-                cli.kill('SIGINT');
+                cli.kill(process.platform === 'win32' ? undefined : 'SIGINT');
             }
         });
 
