@@ -825,6 +825,59 @@ describe('hpal', () => {
                 expect(`${logError}`).to.contain('your current branch \'master\' does not have any commits');
             });
 
+            it('creates a new pal project when bailing on `npm init` by ^C press (SIGINT).', { timeout: 5000 }, async (flags) => {
+
+                flags.onCleanup = async () => await rimraf('new/sigint-on-npm-init');
+
+                const result = await RunUtil.bin(['new', 'closet/new/sigint-on-npm-init'], null, true);
+
+                expect(result.output).to.contain('New pal project created in closet/new/sigint-on-npm-init');
+                expect(result.errorOutput).to.contain('Bailed on `npm init`, but continuing to setup your project with an incomplete package.json file.');
+
+                const results = await Promise.all([
+                    read('new/sigint-on-npm-init/package.json'),
+                    read('new/sigint-on-npm-init/README.md'),
+                    exists('new/sigint-on-npm-init/lib/index.js'),
+                    exists('new/sigint-on-npm-init/test/index.js'),
+                    exec('git remote', 'new/sigint-on-npm-init'),
+                    exec('git tag', 'new/sigint-on-npm-init'),
+                    exec('git ls-files -m', 'new/sigint-on-npm-init'),
+                    returnError(exec('git log', 'new/sigint-on-npm-init'))
+                ]);
+
+                const pkgAsString = results[0];
+                const pkg = JSON.parse(pkgAsString);
+                const readme = results[1];
+                const readmeH1 = readme.trim().substring(2);
+                const lib = results[2];
+                const test = results[3];
+                const remotes = results[4][0].split('\n');
+                const tags = results[5][0].split('\n');
+                const modifiedFiles = results[6][0].trim();
+                const logError = results[7];
+
+                expect(pkg.name).to.not.exist();
+                expect(pkg.version).to.not.exist();
+                expect(pkg.dependencies).to.exist();
+                expect(pkg.devDependencies).to.exist();
+                expect(Object.keys(pkg)).to.equal(bailedPkgKeysOrder);
+                expect(Object.keys(pkg.dependencies)).to.equal(Object.keys(pkg.dependencies).sort());
+                expect(Object.keys(pkg.devDependencies)).to.equal(Object.keys(pkg.devDependencies).sort());
+                expect(pkgAsString.endsWith('\n')).to.equal(true);
+                expect(readmeH1).to.equal('sigint-on-npm-init');
+                expect(lib).to.exist();
+                expect(test).to.exist();
+                expect(remotes).to.contain('pal');
+                expect(tags).to.contain('swagger');
+                expect(tags).to.contain('custom-swagger');
+                expect(tags).to.contain('deployment');
+                expect(tags).to.contain('objection');
+                expect(tags).to.contain('templated-site');
+                expect(tags).to.contain('fancy-templated-site');
+                expect(modifiedFiles).to.equal('');
+                expect(`${logError}`).to.contain('your current branch \'master\' does not have any commits');
+            });
+
             it('fails in a friendly way when trying to create a project in a non-empty directory.', async () => {
 
                 const result = await RunUtil.cli(['new', 'project-already-exists'], 'new');
