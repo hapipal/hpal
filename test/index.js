@@ -825,7 +825,7 @@ describe('hpal', () => {
                 expect(`${logError}`).to.contain('your current branch \'master\' does not have any commits');
             });
 
-            it('creates a new pal project when bailing on `npm init` by ^C press (SIGINT).', { timeout: 5000 }, async (flags) => {
+            it('creates a new pal project when bailing on `npm init` by ^C press (SIGINT).', { timeout: 5000, skip: process.platform === 'win32' }, async (flags) => {
 
                 flags.onCleanup = async () => await rimraf('new/sigint-on-npm-init');
 
