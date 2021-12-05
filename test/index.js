@@ -1763,13 +1763,13 @@ describe('hpal', () => {
             expect(result.errorOutput).to.equal('');
         });
 
-        it('support TypeScript files.', async () => {
+        it('supports TypeScript files.', async () => {
 
             const result = await RunUtil.bin(['run', 'x:some-command'], `${__dirname}/closet/run-command-ts`);
 
+            expect(result.errorOutput).to.equal('');
             expect(result.code).to.equal(0);
             expect(result.output).to.contain('some-command was run!');
-            expect(result.errorOutput).to.equal('');
         });
     });
 });
