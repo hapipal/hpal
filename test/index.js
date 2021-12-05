@@ -1763,7 +1763,7 @@ describe('hpal', () => {
             expect(result.errorOutput).to.equal('');
         });
 
-        it('supports TypeScript files.', async () => {
+        it('supports TypeScript files.', { timeout: 5000 }, async () => { // Slow likely due to TypeScript init
 
             const result = await RunUtil.bin(['run', 'x:some-command'], `${__dirname}/closet/run-command-ts`);
 
