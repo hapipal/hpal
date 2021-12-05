@@ -138,7 +138,7 @@ describe('hpal', () => {
 
                 expect(result.err).to.be.instanceof(DisplayError);
                 expect(result.output).to.equal('');
-                expect(result.errorOutput).to.contain('There\'s no directory in this project containing a .hc.js file.');
+                expect(result.errorOutput).to.contain('There\'s no directory in this project containing a .hc.* file.');
             });
 
             it('errors when there\'s no package.json file found.', async () => {
@@ -156,7 +156,7 @@ describe('hpal', () => {
 
                 expect(result.err).to.be.instanceof(DisplayError);
                 expect(result.output).to.equal('');
-                expect(normalize(result.errorOutput)).to.contain('It\'s ambiguous which directory containing a .hc.js file to use: project-a/.hc.js, project-b/.hc.js');
+                expect(normalize(result.errorOutput)).to.contain('It\'s ambiguous which directory containing a .hc.* file to use: project-a, project-b');
                 expect(result.errorOutput.match(/,/g)).to.have.length(1);
             });
 
@@ -166,7 +166,7 @@ describe('hpal', () => {
 
                 expect(result1.err).to.be.instanceof(DisplayError);
                 expect(result1.output).to.equal('');
-                expect(normalize(result1.errorOutput)).to.contain('It\'s ambiguous which directory containing a .hc.js file to use: ../project-a/.hc.js, ../project-b/.hc.js');
+                expect(normalize(result1.errorOutput)).to.contain('It\'s ambiguous which directory containing a .hc.* file to use: ../project-a, ../project-b');
                 expect(result1.errorOutput.match(/,/g)).to.have.length(1);
 
                 const OrigGlob = Glob.Glob;
@@ -192,7 +192,7 @@ describe('hpal', () => {
                 expect(Glob.Glob.notOriginal).to.not.exist();
                 expect(result2.err).to.be.instanceof(DisplayError);
                 expect(result2.output).to.equal('');
-                expect(normalize(result2.errorOutput)).to.contain('It\'s ambiguous which directory containing a .hc.js file to use: ../project-b/.hc.js, ../project-a/.hc.js');
+                expect(normalize(result2.errorOutput)).to.contain('It\'s ambiguous which directory containing a .hc.* file to use: ../project-b, ../project-a');
                 expect(result2.errorOutput.match(/,/g)).to.have.length(1);
             });
 
@@ -226,6 +226,23 @@ describe('hpal', () => {
                 expect(result.errorOutput).to.equal('');
 
                 const contents = await read('non-ambiguous-hc-file-cwd/project-b/routes/index.js');
+
+                expect(contents).to.startWith('\'use strict\';');
+            });
+
+            it('succeeds when finding a .hc.mjs file from a cwd deep in the project.', async (flags) => {
+
+                const fileCleanup = makeFileCleanup();
+                fileCleanup.files.push('non-ambiguous-hc-file-cwd-esm/project-b/routes');
+                flags.onCleanup = async () => await fileCleanup.cleanup();
+
+                const result = await RunUtil.cli(['make', 'route'], 'non-ambiguous-hc-file-cwd-esm/project-a');
+
+                expect(result.err).to.not.exist();
+                expect(normalize(result.output)).to.contain('Wrote ../project-b/routes/index.js');
+                expect(result.errorOutput).to.equal('');
+
+                const contents = await read('non-ambiguous-hc-file-cwd-esm/project-b/routes/index.js');
 
                 expect(contents).to.startWith('\'use strict\';');
             });
@@ -1347,6 +1364,18 @@ describe('hpal', () => {
                 expect(result5.errorOutput).to.equal('');
             });
 
+            it('supports .hc.mjs for haute-couture-related matches.', async (flags) => {
+
+                const mockWreck = mockWreckGet();
+                flags.onCleanup = mockWreck.cleanup;
+
+                const result = await RunUtil.cli(['docs', 'pluggums'], 'non-ambiguous-hc-file-cwd-esm');
+
+                expect(result.err).to.not.exist();
+                expect(StripAnsi(result.output)).to.contain('# server.register('); // Matched using haute-couture manifest
+                expect(result.errorOutput).to.equal('');
+            });
+
             it('does not match based on custom method.', async (flags) => {
 
                 const mockWreck = mockWreckGet();
@@ -1701,6 +1730,16 @@ describe('hpal', () => {
                 expect(result.errorOutput).to.equal('');
                 expect(result.options.cmd).to.equal({ start: undefined, stop: undefined });
             });
+
+            it('supports server.mjs file.', async () => {
+
+                const result = await RunUtil.cli(['run', 'x:some-command'], 'run-command-esm');
+
+                expect(result.err).to.not.exist();
+                expect(result.errorOutput).to.equal('');
+                expect(result.output).to.contain('Running x:some-command...');
+                expect(result.output).to.contain('Complete!');
+            });
         });
     });
 
@@ -1721,6 +1760,15 @@ describe('hpal', () => {
 
             expect(result.code).to.equal(0);
             expect(result.output).to.contain('["--experimental-repl-await","--use_strict"]');
+            expect(result.errorOutput).to.equal('');
+        });
+
+        it('support TypeScript files.', async () => {
+
+            const result = await RunUtil.bin(['run', 'x:some-command'], `${__dirname}/closet/run-command-ts`);
+
+            expect(result.code).to.equal(0);
+            expect(result.output).to.contain('some-command was run!');
             expect(result.errorOutput).to.equal('');
         });
     });
