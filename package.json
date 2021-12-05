@@ -53,11 +53,15 @@
     "supports-color": "7.x.x"
   },
   "peerDependencies": {
-    "ts-node": "10.x.x"
+    "ts-node": "10.x.x",
+    "typescript": "*"
   },
   "peerDependenciesMeta": {
-    "@hapi/nes": {
-      "ts-node": true
+    "ts-node": {
+      "optional": true
+    },
+    "typescript": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -70,6 +74,7 @@
     "coveralls": "3.x.x",
     "rimraf": "3.x.x",
     "strip-ansi": "6.x.x",
-    "ts-node": "10.x.x"
+    "ts-node": "10.x.x",
+    "typescript": "4.x.x"
   }
 }
