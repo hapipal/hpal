@@ -6,12 +6,12 @@ const Stream = require('stream');
 const DisplayError = require('../lib/display-error');
 const Hpal = require('..');
 
-exports.bin = (argv, cwd) => {
+exports.bin = (argv, cwd, bailOnNpmInit) => {
 
     return new Promise((resolve, reject) => {
 
         const path = Path.join(__dirname, '..', 'bin', 'hpal');
-        const cli = ChildProcess.spawn('node', [].concat(path, argv), { cwd: cwd || __dirname });
+        const cli = ChildProcess.spawn('node', [].concat(path, argv), { cwd: cwd || __dirname, ...(bailOnNpmInit && { detached: true }) });
 
         let output = '';
         let errorOutput = '';
@@ -21,6 +21,12 @@ exports.bin = (argv, cwd) => {
 
             output += data;
             combinedOutput += data;
+
+            if (bailOnNpmInit && ~data.toString().indexOf('Press ^C at any time to quit.')) {
+                // negative process id kills all processes led by the CLI process (process group id = cli.pid)
+                // this group includes the npm init child process spawned by the new command
+                process.kill(-cli.pid, 'SIGINT');
+            }
         });
 
         cli.stderr.on('data', (data) => {
