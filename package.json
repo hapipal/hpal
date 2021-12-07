@@ -47,9 +47,22 @@
     "marked": "1.x.x",
     "marked-terminal": "4.x.x",
     "mkdirp": "1.x.x",
+    "mo-walk": ">=1.1.0 <2",
     "pkg-dir": "5.x.x",
     "pluralize": "8.x.x",
     "supports-color": "7.x.x"
+  },
+  "peerDependencies": {
+    "ts-node": "10.x.x",
+    "typescript": "*"
+  },
+  "peerDependenciesMeta": {
+    "ts-node": {
+      "optional": true
+    },
+    "typescript": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@hapi/boom": "9.x.x",
@@ -57,8 +70,11 @@
     "@hapi/hapi": "20.x.x",
     "@hapi/lab": "24.x.x",
     "@hapipal/haute-couture": "4.x.x",
+    "@types/hapi__hapi": "20.x.x",
     "coveralls": "3.x.x",
     "rimraf": "3.x.x",
-    "strip-ansi": "6.x.x"
+    "strip-ansi": "6.x.x",
+    "ts-node": "10.x.x",
+    "typescript": "4.x.x"
   }
 }

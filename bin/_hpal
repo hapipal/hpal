@@ -1,10 +1,18 @@
 #!/usr/bin/env node
 'use strict';
 
+const Bounce = require('@hapi/bounce');
 const Hpal = require('..');
 const DisplayError = require('../lib/display-error');
 
 (async () => {
+
+    try {
+        require('ts-node').register(); // Support .hc.ts files, etc.
+    }
+    catch (err) {
+        Bounce.ignore(err, { code: 'MODULE_NOT_FOUND' });
+    }
 
     try {
 
