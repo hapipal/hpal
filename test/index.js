@@ -1225,7 +1225,7 @@ describe('hpal', () => {
                 expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
             });
 
-            it('fetches docs from the packages\'s master branch when in a project that does not use the package.', async (flags) => {
+            it('fetches docs from the packages\'s master branch when in a project that does not use the package.', { timeout: 3000 }, async (flags) => {
 
                 const mockWreck = mockWreckGet(null);
                 flags.onCleanup = mockWreck.cleanup;
@@ -1241,7 +1241,7 @@ describe('hpal', () => {
                 expect(result.errorOutput).to.contain('Sorry, couldn\'t find documentation for "xxx".');
             });
 
-            it('fetches docs for the version specified by [--ver].', async (flags) => {
+            it('fetches docs for the version specified by [--ver].', { timeout: 3000 }, async (flags) => {
 
                 const mockWreck = mockWreckGet(null);
                 flags.onCleanup = mockWreck.cleanup;
