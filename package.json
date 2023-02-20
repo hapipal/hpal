@@ -45,7 +45,7 @@
     "bin-v8-flags-filter": ">=1.2.0 <2",
     "glob": "7.x.x",
     "marked": "4.0.16",
-    "marked-terminal": "5.x.x",
+    "marked-terminal": "^5.1.0",
     "mkdirp": "1.x.x",
     "mo-walk": ">=1.1.0 <2",
     "pkg-dir": "5.x.x",
