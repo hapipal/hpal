@@ -1090,7 +1090,8 @@ describe('hpal', () => {
 
                 expect(err).to.be.instanceof(Error);
                 expect(err).to.not.be.instanceof(DisplayError);
-                expect(err.message).to.contain('Cannot read property \'version\' of null');
+                expect(err.message).to.contain('Cannot read properties of null (reading \'version\')');
+
             });
 
             it('errors when can\'t find a manifest for an unknown reason.', async (flags) => {
