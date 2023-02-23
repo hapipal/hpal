@@ -1011,7 +1011,7 @@ describe('hpal', () => {
                 return { calls, cleanup };
             };
 
-            const normalizeVersion = (str) => str.replace(/(19|20)\.[\d]+\.[\d]+/g, '20.x.x');
+            const normalizeVersion = (str) => str.replace(/(19|20|21)\.[\d]+\.[\d]+/g, '20.x.x');
 
             it('errors when fetching docs 404s.', async (flags) => {
 
