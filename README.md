@@ -27,7 +27,7 @@ npx @hapipal/hpal docs --ver 20.0.0 h.response
 ```
 
 ## Usage
-> The hpal CLI is intended for use with hapi v19+ and nodejs v12+ (_see v2 for lower support_).
+> The hpal CLI is intended for use with hapi v20+ and nodejs v16+ (_see v3 for lower support_).
 
 ```
 Usage: hpal <command> <options>
