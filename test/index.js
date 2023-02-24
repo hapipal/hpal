@@ -1011,7 +1011,7 @@ describe('hpal', () => {
                 return { calls, cleanup };
             };
 
-            const normalizeVersion = (str) => str.replace(/(19|20)\.[\d]+\.[\d]+/g, '20.x.x');
+            const normalizeVersion = (str) => str.replace(/(19|20|21)\.[\d]+\.[\d]+/g, '20.x.x');
 
             it('errors when fetching docs 404s.', async (flags) => {
 
@@ -1090,7 +1090,8 @@ describe('hpal', () => {
 
                 expect(err).to.be.instanceof(Error);
                 expect(err).to.not.be.instanceof(DisplayError);
-                expect(err.message).to.contain('Cannot read property \'version\' of null');
+                expect(err.message).to.contain('Cannot read properties of null (reading \'version\')');
+
             });
 
             it('errors when can\'t find a manifest for an unknown reason.', async (flags) => {
