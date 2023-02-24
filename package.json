@@ -68,7 +68,7 @@
     "@hapi/boom": "9.x.x",
     "@hapi/code": "8.x.x",
     "@hapi/hapi": "20.x.x",
-    "@hapi/lab": "24.x.x",
+    "@hapi/lab": "25.x.x",
     "@hapipal/haute-couture": "4.x.x",
     "@types/hapi__hapi": "20.x.x",
     "coveralls": "3.x.x",
